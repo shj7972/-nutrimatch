@@ -12,9 +12,15 @@ export const contentType = 'image/png';
 export default async function Image() {
     // 폰트 로딩 (한글 깨짐 방지 - 구글 폰트 사용)
     // *실제 배포 시에는 로컬 폰트 파일을 사용하는 것이 더 안정적일 수 있습니다.
+    // 폰트 로딩 (Pretendard Bold 사용 - 안정적인 CDN)
     const fontData = await fetch(
-        new URL('https://fonts.gstatic.com/s/notosanskr/v27/PbykFmXiEBPT4ITbgNA5Cgm203Tq4JJWq209pU0DPdWuqxJPLQBphR71.woff', import.meta.url)
-    ).then((res) => res.arrayBuffer());
+        'https://cdn.jsdelivr.net/gh/orioncactus/pretendard/packages/pretendard/dist/public/static/alternates/Pretendard-Bold.otf'
+    ).then((res) => {
+        if (!res.ok) {
+            throw new Error('Failed to fetch font');
+        }
+        return res.arrayBuffer();
+    });
 
     return new ImageResponse(
         (
