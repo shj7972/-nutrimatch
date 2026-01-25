@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     follow: true,
   },
   other: {
-    "naver-site-verification": "verification_code_here", // 네이버 서치어드바이저 코드 필요
+    "naver-site-verification": "291b9dbe622f35d01031c809e42264fefc9040fe",
     "google-site-verification": "verification_code_here", // 구글 서치 콘솔 코드 필요
   }
 };
