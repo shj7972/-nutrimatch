@@ -1,0 +1,335 @@
+[
+    {
+        "id": "omega3",
+        "name": "오메가3",
+        "category": "혈행 개선",
+        "best_with": [
+            "lutein",
+            "vit_d",
+            "coq10",
+            "resveratrol",
+            "astragalus"
+        ],
+        "worst_with": [],
+        "description": "혈중 중성지질 개선 및 혈행 개선, 눈 건조감 개선에 도움.",
+        "caution_msg": "키토산과 함께 복용 시 오메가3(지방)의 흡수가 저해될 수 있습니다."
+    },
+    {
+        "id": "multivitamin",
+        "name": "종합비타민",
+        "category": "기초 영양",
+        "best_with": [
+            "probiotics"
+        ],
+        "worst_with": [
+            "iron"
+        ],
+        "description": "다양한 비타민과 미네랄을 한 번에 섭취하여 영양 균형 유지.",
+        "caution_msg": "철분제나 비타민A 고함량 제품과 중복 섭취 시 과잉증 우려가 있습니다."
+    },
+    {
+        "id": "probiotics",
+        "name": "유산균",
+        "category": "장 건강",
+        "best_with": [
+            "multivitamin"
+        ],
+        "worst_with": [
+            "propolis"
+        ],
+        "description": "유익균 증식 및 유해균 억제, 배변 활동 원활에 도움.",
+        "caution_msg": "프로폴리스(항균 작용)와 동시 섭취 시 유산균 활성이 떨어질 수 있으니 시간차를 두세요."
+    },
+    {
+        "id": "magnesium",
+        "name": "마그네슘",
+        "category": "신경/근육",
+        "best_with": [
+            "calcium",
+            "vit_b_complex",
+            "vit_d"
+        ],
+        "worst_with": [
+            "iron"
+        ],
+        "description": "에너지 이용, 신경 및 근육 기능 유지에 필요.",
+        "caution_msg": "철분제와 함께 복용 시 서로 흡수를 방해할 수 있습니다."
+    },
+    {
+        "id": "calcium",
+        "name": "칼슘",
+        "category": "뼈 건강",
+        "best_with": [
+            "magnesium",
+            "vit_d"
+        ],
+        "worst_with": [
+            "iron",
+            "zinc"
+        ],
+        "description": "뼈와 치아 형성, 신경과 근육 기능 유지에 필요.",
+        "caution_msg": "철분이나 아연과 동시 섭취 시 흡수율이 떨어지므로 식사 전/후로 나누어 드세요."
+    },
+    {
+        "id": "vit_c",
+        "name": "비타민C",
+        "category": "항산화/면역",
+        "best_with": [
+            "iron",
+            "collagen",
+            "msm"
+        ],
+        "worst_with": [],
+        "description": "항산화 작용 및 결합조직 형성과 기능 유지에 필요.",
+        "caution_msg": "구리가 함유된 영양제와 섭취 시 비타민C 산화를 촉진할 수 있습니다."
+    },
+    {
+        "id": "vit_d",
+        "name": "비타민D",
+        "category": "뼈/면역",
+        "best_with": [
+            "calcium",
+            "magnesium",
+            "omega3"
+        ],
+        "worst_with": [],
+        "description": "칼슘과 인이 흡수되고 이용되는 데 필요, 뼈의 형성과 유지.",
+        "caution_msg": null
+    },
+    {
+        "id": "iron",
+        "name": "철분",
+        "category": "혈액 생성",
+        "best_with": [
+            "vit_c"
+        ],
+        "worst_with": [
+            "calcium",
+            "magnesium",
+            "zinc"
+        ],
+        "description": "체내 산소 운반과 혈액 생성에 필수적.",
+        "caution_msg": "칼슘, 마그네슘, 커피(탄닌) 등은 철분 흡수를 방해하므로 2시간 이상 간격을 두세요."
+    },
+    {
+        "id": "zinc",
+        "name": "아연",
+        "category": "면역",
+        "best_with": [],
+        "worst_with": [
+            "calcium",
+            "iron"
+        ],
+        "description": "정상적인 면역 기능 및 세포 분열에 필요.",
+        "caution_msg": "고용량 칼슘이나 철분과 동시에 섭취 시 흡수가 저해될 수 있습니다."
+    },
+    {
+        "id": "lutein",
+        "name": "루테인",
+        "category": "눈 건강",
+        "best_with": [
+            "omega3"
+        ],
+        "worst_with": [],
+        "description": "노화로 인해 감소될 수 있는 황반색소 밀도를 유지하여 눈 건강에 도움.",
+        "caution_msg": "베타카로틴(비타민A 전구체) 고함량과 섭취 시 루테인 흡수가 감소할 수 있습니다."
+    },
+    {
+        "id": "milk_thistle",
+        "name": "밀크씨슬",
+        "category": "간 건강",
+        "best_with": [
+            "vit_b_complex"
+        ],
+        "worst_with": [],
+        "description": "실리마린 성분이 간 세포 보호 및 간 건강에 도움.",
+        "caution_msg": null
+    },
+    {
+        "id": "vit_b_complex",
+        "name": "비타민B군",
+        "category": "활력/에너지",
+        "best_with": [
+            "magnesium",
+            "milk_thistle",
+            "coq10"
+        ],
+        "worst_with": [],
+        "description": "체내 에너지 생성 및 대사에 필수적 (피로 회복).",
+        "caution_msg": null
+    },
+    {
+        "id": "propolis",
+        "name": "프로폴리스",
+        "category": "항산화/면역",
+        "best_with": [
+            "zinc"
+        ],
+        "worst_with": [
+            "probiotics"
+        ],
+        "description": "항산화 및 구강에서의 항균 작용에 도움.",
+        "caution_msg": "강력한 항균 작용으로 인해 유산균의 효능을 저해할 수 있으니 시간차를 두세요."
+    },
+    {
+        "id": "ginseng",
+        "name": "홍삼",
+        "category": "활력/면역",
+        "best_with": [],
+        "worst_with": [],
+        "description": "면역력 증진, 피로 개선, 혈소판 응집 억제를 통한 혈행 개선.",
+        "caution_msg": "카페인 함유 음료나 혈압약, 당뇨약 복용 시 주의가 필요합니다."
+    },
+    {
+        "id": "collagen",
+        "name": "콜라겐",
+        "category": "피부/관절",
+        "best_with": [
+            "vit_c"
+        ],
+        "worst_with": [],
+        "description": "피부 보습 및 탄력 유지, 관절 연골 건강에 도움.",
+        "caution_msg": null
+    },
+    {
+        "id": "coq10",
+        "name": "코엔자임Q10",
+        "category": "항산화/혈압",
+        "best_with": [
+            "omega3",
+            "vit_b_complex",
+            "pqq"
+        ],
+        "worst_with": [],
+        "description": "항산화 및 높은 혈압 감소에 도움을 줄 수 있음.",
+        "caution_msg": "혈액 응고 억제제(와파린 등) 복용 시 약효를 떨어뜨릴 수 있어 주의 필요."
+    },
+    {
+        "id": "msm",
+        "name": "MSM",
+        "category": "관절 건강",
+        "best_with": [
+            "vit_c"
+        ],
+        "worst_with": [],
+        "description": "관절 및 연골 건강에 도움을 줄 수 있는 식이유황.",
+        "caution_msg": null
+    },
+    {
+        "id": "theanine",
+        "name": "테아닌",
+        "category": "스트레스 완화",
+        "best_with": [
+            "magnesium"
+        ],
+        "worst_with": [],
+        "description": "스트레스로 인한 긴장 완화에 도움을 줄 수 있음.",
+        "caution_msg": "카페인과 길항 작용(반대 작용)이 있어 동시 섭취 시 효과가 상쇄될 수 있습니다."
+    },
+    {
+        "id": "arginine",
+        "name": "아르기닌",
+        "category": "활력/운동",
+        "best_with": [],
+        "worst_with": [],
+        "description": "혈관 확장 및 운동 수행 능력 향상, 활력 증진.",
+        "caution_msg": "타 아미노산(라이신 등)과 흡수 경쟁을 하므로 단독 공복 섭취를 권장합니다."
+    },
+    {
+        "id": "biotin",
+        "name": "비오틴",
+        "category": "모발/피부",
+        "best_with": [
+            "collagen"
+        ],
+        "worst_with": [],
+        "description": "지방, 탄수화물, 단백질 대사와 에너지 생성에 필요, 풍성한 모발 건강.",
+        "caution_msg": "항생제 장기 복용 시 장내 비오틴 합성이 저해될 수 있습니다."
+    },
+    {
+        "id": "quercetin",
+        "name": "퀘르세틴 (양파추출물)",
+        "category": "항산화/면역",
+        "best_with": [
+            "bromelain",
+            "vit_c",
+            "zinc"
+        ],
+        "worst_with": [],
+        "description": "양파 껍질에 많은 항산화제로, 염증 완화와 면역력 강화에 탁월합니다.",
+        "caution_msg": "단독 섭취 시 흡수율이 낮습니다. 브로멜라인과 함께 드시는 것을 강력 추천합니다."
+    },
+    {
+        "id": "bromelain",
+        "name": "브로멜라인 (파인애플효소)",
+        "category": "소화/항염",
+        "best_with": [
+            "quercetin"
+        ],
+        "worst_with": [],
+        "description": "파인애플 줄기에서 추출한 효소로, 퀘르세틴의 흡수율을 폭발적으로 높여줍니다.",
+        "caution_msg": "혈액 희석제를 복용 중이라면 멍이 잘 들 수 있으니 주의하세요."
+    },
+    {
+        "id": "glutathione",
+        "name": "글루타치온",
+        "category": "피부/미백",
+        "best_with": [
+            "vit_c",
+            "selenium",
+            "milk_thistle"
+        ],
+        "worst_with": [],
+        "description": "백옥 주사의 주성분으로, 강력한 항산화 효과와 피부 미백에 도움을 줍니다.",
+        "caution_msg": "위산에 약하므로 가급적 '필름형'이나 '리포좀' 형태, 또는 공복 섭취를 권장합니다."
+    },
+    {
+        "id": "nmn",
+        "name": "NMN (노화방지)",
+        "category": "저속노화/NAD+",
+        "best_with": [
+            "resveratrol",
+            "tmg",
+            "pqq"
+        ],
+        "worst_with": [],
+        "description": "세포의 시간을 되돌리는 NAD+의 원료입니다. 저속노화의 핵심 성분으로 불립니다.",
+        "caution_msg": "국내 통관 이슈가 있을 수 있으니 직구 시 규정을 확인하세요. 오전 공복 섭취를 추천합니다."
+    },
+    {
+        "id": "resveratrol",
+        "name": "레스베라트롤",
+        "category": "항산화/장수",
+        "best_with": [
+            "nmn",
+            "omega3"
+        ],
+        "worst_with": [],
+        "description": "포도 껍질의 항산화 성분으로, 장수 유전자(시르투인)를 깨우는 '스위치' 역할을 합니다.",
+        "caution_msg": "지용성이므로 오메가3나 식사와 함께 드셔야 흡수가 잘 됩니다."
+    },
+    {
+        "id": "pqq",
+        "name": "PQQ (두뇌/에너지)",
+        "category": "에너지/미토콘드리아",
+        "best_with": [
+            "coq10",
+            "nmn"
+        ],
+        "worst_with": [],
+        "description": "세포의 에너지 공장인 미토콘드리아를 '재생'시키는 강력한 성분입니다.",
+        "caution_msg": "코엔자임Q10과 함께 드시면 에너지 생성 효율이 극대화됩니다."
+    },
+    {
+        "id": "astragalus",
+        "name": "황기 추출물 (텔로미어)",
+        "category": "DNA보호/면역",
+        "best_with": [
+            "vit_d",
+            "omega3"
+        ],
+        "worst_with": [],
+        "description": "염색체 끝단의 '텔로미어' 길이를 유지하여 세포 노화를 막는 데 도움을 줍니다.",
+        "caution_msg": "면역 반응을 활성화하므로 자가면역질환이 있다면 주의가 필요합니다."
+    }
+]
