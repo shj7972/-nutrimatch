@@ -7,6 +7,7 @@ import { Supplement } from "@/types";
 import { Check, AlertTriangle, ThumbsUp, ShoppingBag, Pill, Sparkles, Zap, Shield, Crown, RotateCcw, Share2, Copy, Info } from "lucide-react";
 import Link from "next/link";
 import clsx from "clsx";
+import BannerExchange from "@/components/BannerExchange";
 
 export default function NutriPage() {
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -513,6 +514,9 @@ export default function NutriPage() {
                     </div>
                 </section>
             </main>
+
+            {/* Banner Exchange Section */}
+            <BannerExchange />
 
             {/* Footer */}
             <footer className="bg-slate-100 py-8 mt-12 border-t border-slate-200">
