@@ -38,6 +38,7 @@ export const metadata: Metadata = {
       "ddc3f85be72e592f1ac7cd102717668866bc8e57"
     ],
     "google-site-verification": "verification_code_here", // 구글 서치 콘솔 코드 필요
+    "google-adsense-account": "ca-pub-2947913248390883",
   }
 };
 
