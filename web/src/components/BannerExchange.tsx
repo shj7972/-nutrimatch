@@ -37,6 +37,12 @@ const ALL_BANNERS: Banner[] = [
         src: "https://irumlab.com/banner_link_234x60.png",
         alt: "이룸랩 배너",
         title: "이룸랩 - 무료 셀프 작명, 영어 닉네임, 브랜드 네이밍"
+    },
+    {
+        href: "https://moneymatch.kr",
+        src: "https://moneymatch.kr/banner_link_234x60.png",
+        alt: "놓치면 손해 보는 정부지원금, 3초 만에 찾기 - Money Match",
+        title: "Money Match - AI 실시간 금융 뉴스 & 지원금 매칭"
     }
 ];
 
