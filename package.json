@@ -1,0 +1,23 @@
+{
+  "name": "nutri",
+  "version": "1.0.0",
+  "description": "nutri",
+  "homepage": "https://github.com/shj7972/-nutrimatch#readme",
+  "bugs": {
+    "url": "https://github.com/shj7972/-nutrimatch/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shj7972/-nutrimatch.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npm run dev --prefix web",
+    "build": "npm run build --prefix web",
+    "start": "npm run start --prefix web",
+    "lint": "npm run lint --prefix web"
+  }
+}
