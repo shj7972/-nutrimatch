@@ -9,6 +9,20 @@ import Link from "next/link";
 import clsx from "clsx";
 import BannerExchange from "@/components/BannerExchange";
 
+// FAQ JSON-LD for Google Rich Results
+const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": seoContent.faq.map((item) => ({
+        "@type": "Question",
+        "name": item.q,
+        "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.a.replace(/\*\*(.*?)\*\*/g, '$1')
+        }
+    }))
+};
+
 export default function NutriPage() {
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [copied, setCopied] = useState(false);
@@ -38,8 +52,8 @@ export default function NutriPage() {
     };
 
     const setLowSpeedAgingCombo = () => {
-        // Default Low-Speed Aging package: NMN, Resveratrol, PQQ, Omega3
-        const combo = ["nmn", "resveratrol", "pqq", "omega3"];
+        // Default Low-Speed Aging package: NMN, Resveratrol, PQQ, Omega3, Urolithin A
+        const combo = ["nmn", "resveratrol", "pqq", "omega3", "urolithin_a"];
         setSelectedIds((prev) => Array.from(new Set([...prev, ...combo])));
     };
 
@@ -80,7 +94,7 @@ export default function NutriPage() {
 
     // Rule 1: "Low Speed Aging Package" Trigger (Strict subset or match?) - Usually "Is Active" if all components present
     const isAntiAgingCombo = useMemo(() => {
-        const target = ["nmn", "resveratrol", "pqq", "omega3"];
+        const target = ["nmn", "resveratrol", "pqq", "omega3", "urolithin_a"];
         return target.every(id => selectedIds.includes(id));
     }, [selectedIds]);
 
@@ -104,6 +118,11 @@ export default function NutriPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+            {/* FAQ JSON-LD for SEO */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+            />
             {/* Header */}
             <header className="bg-blue-600 text-white p-4 md:p-6 shadow-md sticky top-0 z-50">
                 <div className="max-w-6xl mx-auto flex items-center justify-between">
@@ -377,7 +396,8 @@ export default function NutriPage() {
                                                         "nmn": "https://link.coupang.com/a/dyZA3w",
                                                         "resveratrol": "https://link.coupang.com/a/dyZCtB",
                                                         "pqq": "https://link.coupang.com/a/dyZDWJ",
-                                                        "astragalus": "https://link.coupang.com/a/dyZE0i"
+                                                        "astragalus": "https://link.coupang.com/a/dyZE0i",
+                                                        "urolithin_a": "https://link.coupang.com/a/dy0bbp"
                                                     };
 
                                                     // Strategy: Randomly pick ONE item from selection to ensure tracking

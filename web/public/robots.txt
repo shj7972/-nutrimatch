@@ -1,3 +1,10 @@
 User-agent: *
 Allow: /
+
+User-agent: Yeti
+Allow: /
+
+User-agent: Daumoa
+Allow: /
+
 Sitemap: https://nutrimatch.kr/sitemap.xml
