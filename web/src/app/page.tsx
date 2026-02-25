@@ -7,12 +7,13 @@ import seoContent from "@/data/seo_content.json";
 import { Supplement } from "@/types";
 import {
     Check, AlertTriangle, ThumbsUp, ShoppingBag, Pill, Sparkles, Zap,
-    Shield, Crown, RotateCcw, Share2, Info, Target, Clock, BookmarkCheck, Star
+    Shield, Crown, RotateCcw, Share2, Info, Target, Clock, BookmarkCheck, Star, BookOpen, ArrowRight
 } from "lucide-react";
 import Link from "next/link";
 import clsx from "clsx";
 import BannerExchange from "@/components/BannerExchange";
 import AdBanner from "@/components/AdBanner";
+import guidePosts from "@/data/guide_posts.json";
 
 // FAQ JSON-LD for Google Rich Results
 const faqJsonLd = {
@@ -276,6 +277,13 @@ function NutriPageInner() {
                                 <span className="hidden sm:inline">내 루틴</span>
                             </button>
                         )}
+                        <Link
+                            href="/guide"
+                            className="text-sm bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors font-medium"
+                        >
+                            <BookOpen className="w-4 h-4" />
+                            <span className="hidden sm:inline">가이드</span>
+                        </Link>
                         <button
                             onClick={resetSelection}
                             className="text-sm bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
@@ -284,7 +292,6 @@ function NutriPageInner() {
                             <RotateCcw className="w-4 h-4" />
                             <span className="hidden sm:inline">초기화</span>
                         </button>
-                        <span className="text-sm opacity-90 hidden sm:block ml-2">나만의 영양제 궁합 분석기</span>
                     </div>
                 </div>
             </header>
@@ -710,6 +717,47 @@ function NutriPageInner() {
                         <p className="text-center text-slate-500 mb-10">내 몸의 시간을 되돌리는 과학적인 영양 설계</p>
                         <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 leading-8 text-slate-700 whitespace-pre-line">
                             <p dangerouslySetInnerHTML={{ __html: seoContent.trend_guide.content.replace(/\*\*(.*?)\*\*/g, '<strong class="text-indigo-600 bg-indigo-50 px-1 rounded">$1</strong>').replace(/\n/g, '<br/>') }} />
+                        </div>
+                    </div>
+                </section>
+
+                {/* Guide Blog Preview Section */}
+                <section id="guide" className="py-16 bg-white border-t border-slate-100">
+                    <div className="max-w-4xl mx-auto px-6">
+                        <div className="flex items-center justify-between mb-8">
+                            <div>
+                                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 flex items-center gap-3">
+                                    <BookOpen className="w-8 h-8 text-blue-600" />
+                                    영양제 완벽 가이드
+                                </h2>
+                                <p className="text-slate-500 mt-1">올바른 섭취법부터 저속노화 루틴까지, 과학적으로 검증된 정보</p>
+                            </div>
+                            <Link
+                                href="/guide"
+                                className="hidden sm:flex items-center gap-1 text-blue-600 font-semibold hover:text-blue-700 transition-colors text-sm"
+                            >
+                                전체 보기 <ArrowRight className="w-4 h-4" />
+                            </Link>
+                        </div>
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {(guidePosts as { slug: string; title: string; category: string; description: string }[]).slice(0, 4).map((post) => (
+                                <Link
+                                    key={post.slug}
+                                    href={`/guide/${post.slug}`}
+                                    className="group bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-2xl p-5 transition-all hover:-translate-y-1 hover:shadow-md"
+                                >
+                                    <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">{post.category}</span>
+                                    <p className="font-bold text-slate-700 group-hover:text-blue-700 mt-2 text-sm leading-snug line-clamp-3">{post.title}</p>
+                                    <div className="flex items-center gap-1 text-blue-500 mt-3 text-xs font-semibold">
+                                        읽기 <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                        <div className="text-center mt-6 sm:hidden">
+                            <Link href="/guide" className="text-blue-600 font-semibold text-sm hover:underline flex items-center justify-center gap-1">
+                                가이드 전체 보기 <ArrowRight className="w-4 h-4" />
+                            </Link>
                         </div>
                     </div>
                 </section>
