@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useMemo } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import supplementsData from "@/data/supplements.json";
@@ -13,8 +13,42 @@ import {
     ThumbsUp,
     ThumbsDown,
     ShieldAlert,
-    Pill
+    Pill,
+    ShoppingBag,
 } from "lucide-react";
+import AdBanner from "@/components/AdBanner";
+
+// 쿠팡 파트너스 링크 맵 (메인 page.tsx와 동일)
+const COUPANG_LINKS: Record<string, string> = {
+    "omega3": "https://link.coupang.com/a/dyYztG",
+    "multivitamin": "https://link.coupang.com/a/dyY0NM",
+    "probiotics": "https://link.coupang.com/a/dyY4DH",
+    "magnesium": "https://link.coupang.com/a/dyY5ZR",
+    "calcium": "https://link.coupang.com/a/dyZdtI",
+    "vit_c": "https://link.coupang.com/a/dyZeNr",
+    "vit_d": "https://link.coupang.com/a/dyZfQg",
+    "vit_b_complex": "https://link.coupang.com/a/dyZgQH",
+    "iron": "https://link.coupang.com/a/dyZi33",
+    "zinc": "https://link.coupang.com/a/dyZj5b",
+    "lutein": "https://link.coupang.com/a/dyZloa",
+    "milk_thistle": "https://link.coupang.com/a/dyZmmG",
+    "propolis": "https://link.coupang.com/a/dyZnwh",
+    "ginseng": "https://link.coupang.com/a/dyZoy2",
+    "collagen": "https://link.coupang.com/a/dyZpw5",
+    "coq10": "https://link.coupang.com/a/dyZqw5",
+    "msm": "https://link.coupang.com/a/dyZrAy",
+    "theanine": "https://link.coupang.com/a/dyZtUm",
+    "arginine": "https://link.coupang.com/a/dyZu1E",
+    "biotin": "https://link.coupang.com/a/dyZxos",
+    "quercetin": "https://link.coupang.com/a/dyZygG",
+    "bromelain": "https://link.coupang.com/a/dyZy3m",
+    "glutathione": "https://link.coupang.com/a/dyZAaZ",
+    "nmn": "https://link.coupang.com/a/dyZA3w",
+    "resveratrol": "https://link.coupang.com/a/dyZCtB",
+    "pqq": "https://link.coupang.com/a/dyZDWJ",
+    "astragalus": "https://link.coupang.com/a/dyZE0i",
+    "urolithin_a": "https://link.coupang.com/a/dy0bbp",
+};
 
 export default function NutrientDetailClient({ id }: { id: string }) {
     const supplement = useMemo(() => {
@@ -28,6 +62,9 @@ export default function NutrientDetailClient({ id }: { id: string }) {
     // Find related items for linking
     const bestCombos = (supplementsData as unknown as Supplement[]).filter(s => supplement.best_with.includes(s.id));
     const worstCombos = (supplementsData as unknown as Supplement[]).filter(s => supplement.worst_with.includes(s.id));
+
+    const coupangLink = COUPANG_LINKS[id];
+    const iherbQuery = encodeURIComponent(supplement.name);
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans pb-20">
@@ -118,6 +155,9 @@ export default function NutrientDetailClient({ id }: { id: string }) {
                     </div>
                 </section>
 
+                {/* AdSense 광고 */}
+                <AdBanner slot="3456789012" format="rectangle" className="rounded-2xl overflow-hidden min-h-[100px] bg-slate-100" />
+
                 {/* Combinations Links */}
                 <div className="grid md:grid-cols-2 gap-6">
                     {/* Best Combos */}
@@ -157,6 +197,72 @@ export default function NutrientDetailClient({ id }: { id: string }) {
                             <p className="text-sm text-slate-400">특별한 주의 조합이 없습니다.</p>
                         )}
                     </div>
+                </div>
+
+                {/* 구매 섹션 */}
+                <section className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
+                    <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2">
+                        <ShoppingBag className="w-5 h-5 text-blue-600" />
+                        {supplement.name} 최저가로 구매하기
+                    </h2>
+                    <p className="text-sm text-slate-500 mb-4">신뢰할 수 있는 공식 채널에서 안전하게 구매하세요.</p>
+                    <div className="grid grid-cols-2 gap-3">
+                        {/* 쿠팡 */}
+                        {coupangLink && (
+                            <a
+                                href={coupangLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all hover:shadow-lg active:scale-95 flex flex-col items-center justify-center gap-0.5 group relative overflow-hidden"
+                            >
+                                <div className="flex items-center gap-1.5">
+                                    <div className="bg-red-500 p-0.5 rounded-sm">
+                                        <span className="text-[10px] font-black tracking-tighter text-white">R</span>
+                                    </div>
+                                    <span className="text-sm font-bold">쿠팡 로켓배송</span>
+                                </div>
+                                <span className="text-[10px] opacity-80">내일 새벽 도착 🚀</span>
+                            </a>
+                        )}
+                        {/* 아이허브 */}
+                        <a
+                            href={`https://kr.iherb.com/search?kw=${iherbQuery}&rcode=CYX2175`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-[#458500] hover:bg-[#3d7400] text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all hover:shadow-lg active:scale-95 flex flex-col items-center justify-center gap-0.5"
+                        >
+                            <div className="flex items-center gap-1.5">
+                                <ShoppingBag className="w-4 h-4" />
+                                <span className="text-sm font-bold">아이허브</span>
+                            </div>
+                            <span className="text-[10px] opacity-80">글로벌 최저가 🌿</span>
+                        </a>
+                        {/* 쿠팡 링크가 없으면 2열 전체 */}
+                        {!coupangLink && (
+                            <a
+                                href={`https://www.coupang.com/np/search?q=${iherbQuery}&channel=user`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all hover:shadow-lg active:scale-95 flex flex-col items-center justify-center gap-0.5"
+                            >
+                                <span className="text-sm">쿠팡에서 검색</span>
+                            </a>
+                        )}
+                    </div>
+                    <p className="text-[11px] text-center text-slate-400 mt-3 leading-relaxed">
+                        ⚠️ 이 포스팅은 쿠팡 파트너스 및 아이허브 제휴 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
+                    </p>
+                </section>
+
+                {/* 궁합 분석기로 이동 */}
+                <div className="text-center">
+                    <Link
+                        href={`/?s=${id}`}
+                        className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition-all hover:shadow-lg active:scale-95"
+                    >
+                        <Pill className="w-4 h-4" />
+                        {supplement.name}를 포함해서 궁합 분석하기
+                    </Link>
                 </div>
 
             </main>

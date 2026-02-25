@@ -1,13 +1,18 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import supplementsData from "@/data/supplements.json";
 import seoContent from "@/data/seo_content.json";
 import { Supplement } from "@/types";
-import { Check, AlertTriangle, ThumbsUp, ShoppingBag, Pill, Sparkles, Zap, Shield, Crown, RotateCcw, Share2, Copy, Info } from "lucide-react";
+import {
+    Check, AlertTriangle, ThumbsUp, ShoppingBag, Pill, Sparkles, Zap,
+    Shield, Crown, RotateCcw, Share2, Info, Target, Clock, BookmarkCheck, Star
+} from "lucide-react";
 import Link from "next/link";
 import clsx from "clsx";
 import BannerExchange from "@/components/BannerExchange";
+import AdBanner from "@/components/AdBanner";
 
 // FAQ JSON-LD for Google Rich Results
 const faqJsonLd = {
@@ -23,9 +28,77 @@ const faqJsonLd = {
     }))
 };
 
-export default function NutriPage() {
+// 건강 목표 정의
+const HEALTH_GOALS = [
+    { id: "energy", label: "💪 피로 회복 & 활력", supplements: ["vit_b_complex", "coq10", "magnesium", "iron"] },
+    { id: "eye", label: "👁️ 눈 건강", supplements: ["lutein", "omega3", "vit_c"] },
+    { id: "skin", label: "✨ 피부 미용", supplements: ["collagen", "vit_c", "glutathione", "biotin"] },
+    { id: "antiaging", label: "🐢 저속노화", supplements: ["nmn", "resveratrol", "pqq", "urolithin_a", "omega3"] },
+    { id: "sleep", label: "😴 수면 개선", supplements: ["magnesium", "theanine"] },
+    { id: "immunity", label: "🛡️ 면역 강화", supplements: ["vit_d", "zinc", "propolis", "vit_c"] },
+    { id: "joint", label: "🦴 관절 & 뼈", supplements: ["calcium", "vit_d", "magnesium", "collagen", "msm"] },
+    { id: "gut", label: "🌿 장 건강", supplements: ["probiotics", "bromelain"] },
+];
+
+// 섭취 시간대별 분류
+function getTiming(timing: string | undefined): string {
+    if (!timing) return "식후";
+    const t = timing.toLowerCase();
+    if (t.includes("아침 공복") || t.includes("기상")) return "아침 공복";
+    if (t.includes("아침") || (t.includes("점심") && t.includes("아침"))) return "아침 식후";
+    if (t.includes("점심")) return "점심 식후";
+    if (t.includes("저녁")) return "저녁 식후";
+    if (t.includes("취침")) return "취침 전";
+    if (t.includes("공복")) return "아침 공복";
+    return "식후";
+}
+
+const TIMING_ORDER = ["아침 공복", "아침 식후", "점심 식후", "저녁 식후", "취침 전", "식후"];
+const TIMING_COLORS: Record<string, string> = {
+    "아침 공복": "bg-amber-50 border-amber-200 text-amber-800",
+    "아침 식후": "bg-orange-50 border-orange-200 text-orange-800",
+    "점심 식후": "bg-green-50 border-green-200 text-green-800",
+    "저녁 식후": "bg-blue-50 border-blue-200 text-blue-800",
+    "취침 전": "bg-indigo-50 border-indigo-200 text-indigo-800",
+    "식후": "bg-slate-50 border-slate-200 text-slate-700",
+};
+const TIMING_ICONS: Record<string, string> = {
+    "아침 공복": "🌅",
+    "아침 식후": "☀️",
+    "점심 식후": "🌤️",
+    "저녁 식후": "🌙",
+    "취침 전": "🌜",
+    "식후": "🍽️",
+};
+
+const LOCAL_STORAGE_KEY = "nutrimatch_saved_routine";
+
+// Inner component that uses useSearchParams
+function NutriPageInner() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [copied, setCopied] = useState(false);
+    const [savedRoutine, setSavedRoutine] = useState<string[]>([]);
+    const [activeTab, setActiveTab] = useState<"select" | "timetable">("select");
+    const [showGoalModal, setShowGoalModal] = useState(false);
+
+    // URL 파라미터에서 초기 선택값 로드
+    useEffect(() => {
+        const sParam = searchParams.get("s");
+        if (sParam) {
+            const ids = sParam.split(",").filter(Boolean);
+            setSelectedIds(ids);
+        }
+    }, [searchParams]);
+
+    // 로컬스토리지에서 저장된 루틴 로드
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (saved) setSavedRoutine(JSON.parse(saved));
+        } catch { /* ignore */ }
+    }, []);
 
     const toggleSupplement = (id: string) => {
         setSelectedIds((prev) =>
@@ -36,25 +109,59 @@ export default function NutriPage() {
     const resetSelection = () => {
         setSelectedIds([]);
         setCopied(false);
+        router.replace("/");
     };
 
-    const shareResults = () => {
-        const params = new URLSearchParams();
-        if (selectedIds.length > 0) {
-            params.set("s", selectedIds.join(","));
+    // ✅ URL 공유 기능 완성 (실제 URL 공유)
+    const shareResults = async () => {
+        const params = selectedIds.length > 0 ? `?s=${selectedIds.join(",")}` : "";
+        const shareUrl = `https://nutrimatch.kr/${params}`;
+        try {
+            if (navigator.share) {
+                await navigator.share({
+                    title: "Nutri-Match 영양제 궁합 분석 결과",
+                    text: `내가 선택한 영양제 ${selectedIds.length}개의 궁합을 확인해보세요!`,
+                    url: shareUrl,
+                });
+            } else {
+                await navigator.clipboard.writeText(shareUrl);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2500);
+            }
+        } catch {
+            await navigator.clipboard.writeText(shareUrl);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2500);
         }
-        // Simulate copying text summary for now, as URL sharing requires backend or URL state implementation
-        // Let's copy a nice text summary
-        const summary = `💊 Nutri-Match 분석 결과\n선택한 영양제: ${selectedIds.length}개\n\n${analysis.good.length > 0 ? `✅ 꿀조합: ${analysis.good.length}개 발견!` : ""}\n${analysis.bad.length > 0 ? `⚠️ 주의: ${analysis.bad.length}가지 상성 발견!` : ""}\n\n나만의 영양제 궁합을 확인해보세요!`;
-        navigator.clipboard.writeText(summary);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+    };
+
+    // 루틴 저장
+    const saveRoutine = () => {
+        try {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(selectedIds));
+            setSavedRoutine([...selectedIds]);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch { /* ignore */ }
+    };
+
+    // 저장된 루틴 불러오기
+    const loadSavedRoutine = () => {
+        if (savedRoutine.length > 0) setSelectedIds([...savedRoutine]);
     };
 
     const setLowSpeedAgingCombo = () => {
-        // Default Low-Speed Aging package: NMN, Resveratrol, PQQ, Omega3, Urolithin A
         const combo = ["nmn", "resveratrol", "pqq", "omega3", "urolithin_a"];
         setSelectedIds((prev) => Array.from(new Set([...prev, ...combo])));
+    };
+
+    // 건강 목표별 적용
+    const applyGoal = (goalId: string) => {
+        const goal = HEALTH_GOALS.find(g => g.id === goalId);
+        if (goal) {
+            setSelectedIds(prev => Array.from(new Set([...prev, ...goal.supplements])));
+            setShowGoalModal(false);
+        }
     };
 
     const selectedSupplements = useMemo(() => {
@@ -65,20 +172,14 @@ export default function NutriPage() {
         const good: { s1: Supplement; s2: Supplement }[] = [];
         const bad: { s1: Supplement; s2: Supplement; msg: string | null }[] = [];
 
-        // Check interactions within selected items
         for (let i = 0; i < selectedSupplements.length; i++) {
             for (let j = i + 1; j < selectedSupplements.length; j++) {
                 const s1 = selectedSupplements[i];
                 const s2 = selectedSupplements[j];
-
-                // Good
                 if (s1.best_with.includes(s2.id) || s2.best_with.includes(s1.id)) {
                     good.push({ s1, s2 });
                 }
-
-                // Bad
                 if (s1.worst_with.includes(s2.id) || s2.worst_with.includes(s1.id)) {
-                    // Find caution msg
                     const msg = s1.worst_with.includes(s2.id) ? s1.caution_msg : s2.caution_msg;
                     bad.push({ s1, s2, msg });
                 }
@@ -92,29 +193,60 @@ export default function NutriPage() {
         return Array.from(categories);
     }, [selectedSupplements]);
 
-    // Rule 1: "Low Speed Aging Package" Trigger (Strict subset or match?) - Usually "Is Active" if all components present
+    // 섭취 타임테이블
+    const timetable = useMemo(() => {
+        const table: Record<string, Supplement[]> = {};
+        TIMING_ORDER.forEach(t => { table[t] = []; });
+        selectedSupplements.forEach(s => {
+            const slot = getTiming(s.timing);
+            if (!table[slot]) table[slot] = [];
+            table[slot].push(s);
+        });
+        return table;
+    }, [selectedSupplements]);
+
     const isAntiAgingCombo = useMemo(() => {
         const target = ["nmn", "resveratrol", "pqq", "omega3", "urolithin_a"];
         return target.every(id => selectedIds.includes(id));
     }, [selectedIds]);
 
-    // Rule 2: "3 Defense Lines" Trigger
-    // Energy: NMN or PQQ (User said "NMN, PQQ (Mitochondria)", usually implies both or at least one of the strong mitochondrials)
-    // Gene: Resveratrol
-    // Lifespan: Astragalus
     const is3DefenseLines = useMemo(() => {
-        // Let's be generous: Needs (NMN OR PQQ) AND Resveratrol AND Astragalus
-        // OR strictly: NMN AND Resveratrol AND Astragalus? 
-        // Prompt: "Energy: NMN, PQQ" -> "Gene: Resveratrol" -> "Lifespan: Astragalus"
-        // "You are taking care of all 3 defense lines!" -> implies coverage of all 3 categories.
-        // Let's require coverage of each category.
-
         const hasEnergy = selectedIds.includes("nmn") || selectedIds.includes("pqq");
         const hasGene = selectedIds.includes("resveratrol");
         const hasLifespan = selectedIds.includes("astragalus");
-
         return hasEnergy && hasGene && hasLifespan;
     }, [selectedIds]);
+
+    const COUPANG_LINKS: Record<string, string> = {
+        "omega3": "https://link.coupang.com/a/dyYztG",
+        "multivitamin": "https://link.coupang.com/a/dyY0NM",
+        "probiotics": "https://link.coupang.com/a/dyY4DH",
+        "magnesium": "https://link.coupang.com/a/dyY5ZR",
+        "calcium": "https://link.coupang.com/a/dyZdtI",
+        "vit_c": "https://link.coupang.com/a/dyZeNr",
+        "vit_d": "https://link.coupang.com/a/dyZfQg",
+        "vit_b_complex": "https://link.coupang.com/a/dyZgQH",
+        "iron": "https://link.coupang.com/a/dyZi33",
+        "zinc": "https://link.coupang.com/a/dyZj5b",
+        "lutein": "https://link.coupang.com/a/dyZloa",
+        "milk_thistle": "https://link.coupang.com/a/dyZmmG",
+        "propolis": "https://link.coupang.com/a/dyZnwh",
+        "ginseng": "https://link.coupang.com/a/dyZoy2",
+        "collagen": "https://link.coupang.com/a/dyZpw5",
+        "coq10": "https://link.coupang.com/a/dyZqw5",
+        "msm": "https://link.coupang.com/a/dyZrAy",
+        "theanine": "https://link.coupang.com/a/dyZtUm",
+        "arginine": "https://link.coupang.com/a/dyZu1E",
+        "biotin": "https://link.coupang.com/a/dyZxos",
+        "quercetin": "https://link.coupang.com/a/dyZygG",
+        "bromelain": "https://link.coupang.com/a/dyZy3m",
+        "glutathione": "https://link.coupang.com/a/dyZAaZ",
+        "nmn": "https://link.coupang.com/a/dyZA3w",
+        "resveratrol": "https://link.coupang.com/a/dyZCtB",
+        "pqq": "https://link.coupang.com/a/dyZDWJ",
+        "astragalus": "https://link.coupang.com/a/dyZE0i",
+        "urolithin_a": "https://link.coupang.com/a/dy0bbp",
+    };
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
@@ -123,6 +255,7 @@ export default function NutriPage() {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
             />
+
             {/* Header */}
             <header className="bg-blue-600 text-white p-4 md:p-6 shadow-md sticky top-0 z-50">
                 <div className="max-w-6xl mx-auto flex items-center justify-between">
@@ -133,6 +266,16 @@ export default function NutriPage() {
                         <h1 className="text-xl md:text-2xl font-bold tracking-tight">Nutri-Match</h1>
                     </div>
                     <div className="flex items-center gap-2">
+                        {savedRoutine.length > 0 && (
+                            <button
+                                onClick={loadSavedRoutine}
+                                className="text-sm bg-blue-500 hover:bg-blue-400 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
+                                title="저장된 루틴 불러오기"
+                            >
+                                <BookmarkCheck className="w-4 h-4" />
+                                <span className="hidden sm:inline">내 루틴</span>
+                            </button>
+                        )}
                         <button
                             onClick={resetSelection}
                             className="text-sm bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
@@ -152,18 +295,53 @@ export default function NutriPage() {
 
                     {/* Selection Area */}
                     <section className="lg:col-span-7 space-y-6">
-                        {/* Special Combo Button */}
-                        <button
-                            onClick={setLowSpeedAgingCombo}
-                            className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white p-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95 group border border-violet-400"
-                        >
-                            <span className="bg-white/20 p-1.5 rounded-lg group-hover:bg-white/30 transition-colors">
-                                🐢
-                            </span>
-                            <span className="font-bold text-lg">저속노화(Slow Aging) 조합 한 번에 선택</span>
-                            <Zap className="w-4 h-4 fill-yellow-300 text-yellow-300 animate-pulse" />
-                        </button>
+                        {/* Action Buttons Row */}
+                        <div className="grid grid-cols-2 gap-3">
+                            {/* 저속노화 콤보 */}
+                            <button
+                                onClick={setLowSpeedAgingCombo}
+                                className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white p-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95 group border border-violet-400"
+                            >
+                                <span className="text-lg">🐢</span>
+                                <span className="font-bold text-sm">저속노화 조합</span>
+                                <Zap className="w-3.5 h-3.5 fill-yellow-300 text-yellow-300 animate-pulse" />
+                            </button>
+                            {/* 건강 목표별 추천 */}
+                            <button
+                                onClick={() => setShowGoalModal(true)}
+                                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white p-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95 group"
+                            >
+                                <Target className="w-4 h-4" />
+                                <span className="font-bold text-sm">건강 목표로 선택</span>
+                            </button>
+                        </div>
 
+                        {/* 건강 목표 모달 */}
+                        {showGoalModal && (
+                            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowGoalModal(false)}>
+                                <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+                                    <h3 className="font-bold text-lg text-slate-800 mb-1 flex items-center gap-2">
+                                        <Target className="w-5 h-5 text-emerald-600" />
+                                        건강 목표 선택
+                                    </h3>
+                                    <p className="text-xs text-slate-500 mb-4">목표에 맞는 영양제를 자동으로 추가합니다</p>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {HEALTH_GOALS.map(goal => (
+                                            <button
+                                                key={goal.id}
+                                                onClick={() => applyGoal(goal.id)}
+                                                className="text-left p-3 rounded-xl border-2 border-slate-100 hover:border-emerald-300 hover:bg-emerald-50 transition-all text-sm font-medium text-slate-700 hover:text-emerald-800 active:scale-95"
+                                            >
+                                                {goal.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <button onClick={() => setShowGoalModal(false)} className="mt-4 w-full text-sm text-slate-400 hover:text-slate-600 py-2">닫기</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Supplement Grid */}
                         <div className="space-y-4">
                             <h2 className="text-xl font-bold flex items-center gap-2 text-blue-900">
                                 <div className="bg-blue-100 p-1.5 rounded-lg text-blue-600">
@@ -225,240 +403,265 @@ export default function NutriPage() {
                     {/* Analysis Result */}
                     <section className="lg:col-span-5 space-y-6">
                         <div className="bg-white p-6 rounded-2xl shadow-xl border border-slate-100 lg:sticky lg:top-24">
+                            {/* Result Header with tabs */}
                             <div className="flex items-center justify-between mb-4 border-b pb-4">
-                                <h2 className="text-xl font-bold flex items-center gap-2 text-slate-800">
-                                    분석 결과
-                                    <span className="text-sm font-normal text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-                                        {selectedIds.length}개
-                                    </span>
-                                </h2>
-                                {selectedIds.length > 0 && (
+                                <div className="flex items-center gap-1">
                                     <button
-                                        onClick={shareResults}
-                                        className="text-slate-500 hover:text-blue-600 flex items-center gap-1.5 text-sm font-medium transition-colors"
+                                        onClick={() => setActiveTab("select")}
+                                        className={clsx("text-sm font-bold px-3 py-1.5 rounded-lg transition-colors", activeTab === "select" ? "bg-blue-100 text-blue-700" : "text-slate-500 hover:text-slate-700")}
                                     >
-                                        {copied ? <Check className="w-4 h-4 text-green-500" /> : <Share2 className="w-4 h-4" />}
-                                        {copied ? "복사됨!" : "공유하기"}
+                                        궁합 분석
                                     </button>
-                                )}
+                                    <button
+                                        onClick={() => setActiveTab("timetable")}
+                                        className={clsx("text-sm font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1", activeTab === "timetable" ? "bg-blue-100 text-blue-700" : "text-slate-500 hover:text-slate-700")}
+                                    >
+                                        <Clock className="w-3.5 h-3.5" /> 타임테이블
+                                    </button>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm font-normal text-slate-500 bg-slate-100 px-3 py-1 rounded-full">{selectedIds.length}개</span>
+                                    {selectedIds.length > 0 && (
+                                        <button
+                                            onClick={shareResults}
+                                            className="text-slate-500 hover:text-blue-600 flex items-center gap-1 text-sm font-medium transition-colors"
+                                            title="결과 URL 공유"
+                                        >
+                                            {copied ? <Check className="w-4 h-4 text-green-500" /> : <Share2 className="w-4 h-4" />}
+                                        </button>
+                                    )}
+                                    {selectedIds.length > 0 && (
+                                        <button
+                                            onClick={saveRoutine}
+                                            className="text-slate-500 hover:text-indigo-600 flex items-center gap-1 text-sm font-medium transition-colors"
+                                            title="내 루틴으로 저장"
+                                        >
+                                            <Star className="w-4 h-4" />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
-                            {selectedIds.length === 0 ? (
-                                <div className="text-center py-12 text-slate-400">
-                                    <Pill className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                                    <p className="text-lg">영양제를 선택하면<br />궁합을 분석해 드려요!</p>
-                                </div>
-                            ) : (
-                                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-
-                                    {/* Special Marketing Messages - Stackable */}
-                                    {is3DefenseLines && (
-                                        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-5 rounded-2xl shadow-lg text-white relative overflow-hidden animate-in zoom-in-95 duration-500 ring-2 ring-emerald-200">
-                                            <div className="absolute -right-4 -bottom-4 opacity-20 rotate-12">
-                                                <Shield className="w-32 h-32" />
-                                            </div>
-                                            <div className="flex items-start gap-4 relative z-10">
-                                                <div className="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm">
-                                                    <Crown className="w-8 h-8 text-yellow-300 fill-yellow-300" />
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-bold text-lg mb-1 tracking-tight">당신은 노화의 3대 방어선을 모두 챙기고 계시네요! 🛡️</h3>
-                                                    <div className="mt-3 space-y-1 text-sm bg-black/10 p-3 rounded-lg border border-white/10">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-emerald-200 font-bold">⚡ 에너지:</span> 미토콘드리아 부활 (NMN/PQQ)
+                            {/* 궁합 분석 탭 */}
+                            {activeTab === "select" && (
+                                <>
+                                    {selectedIds.length === 0 ? (
+                                        <div className="text-center py-12 text-slate-400">
+                                            <Pill className="w-16 h-16 mx-auto mb-4 opacity-20" />
+                                            <p className="text-lg">영양제를 선택하면<br />궁합을 분석해 드려요!</p>
+                                            <p className="text-sm mt-3 text-emerald-500 font-medium">💡 건강 목표 버튼으로 한 번에 선택 가능해요</p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                            {/* Special Marketing Messages */}
+                                            {is3DefenseLines && (
+                                                <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-5 rounded-2xl shadow-lg text-white relative overflow-hidden animate-in zoom-in-95 duration-500 ring-2 ring-emerald-200">
+                                                    <div className="absolute -right-4 -bottom-4 opacity-20 rotate-12">
+                                                        <Shield className="w-32 h-32" />
+                                                    </div>
+                                                    <div className="flex items-start gap-4 relative z-10">
+                                                        <div className="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm">
+                                                            <Crown className="w-8 h-8 text-yellow-300 fill-yellow-300" />
                                                         </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-emerald-200 font-bold">🧬 유전자:</span> 장수 유전자 ON (레스베라트롤)
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-emerald-200 font-bold">⏳ 수명:</span> 텔로미어 보호 (황기)
+                                                        <div>
+                                                            <h3 className="font-bold text-lg mb-1 tracking-tight">당신은 노화의 3대 방어선을 모두 챙기고 계시네요! 🛡️</h3>
+                                                            <div className="mt-3 space-y-1 text-sm bg-black/10 p-3 rounded-lg border border-white/10">
+                                                                <div className="flex items-center gap-2"><span className="text-emerald-200 font-bold">⚡ 에너지:</span> 미토콘드리아 부활 (NMN/PQQ)</div>
+                                                                <div className="flex items-center gap-2"><span className="text-emerald-200 font-bold">🧬 유전자:</span> 장수 유전자 ON (레스베라트롤)</div>
+                                                                <div className="flex items-center gap-2"><span className="text-emerald-200 font-bold">⏳ 수명:</span> 텔로미어 보호 (황기)</div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    )}
+                                            )}
 
-                                    {isAntiAgingCombo && !is3DefenseLines && (
-                                        <div className="bg-gradient-to-br from-violet-600 to-indigo-700 p-5 rounded-2xl shadow-lg text-white relative overflow-hidden animate-in zoom-in-95 duration-500">
-                                            <div className="absolute top-0 right-0 p-4 opacity-10">
-                                                <Sparkles className="w-24 h-24" />
-                                            </div>
-                                            <div className="flex items-start gap-3 relative z-10">
-                                                <div className="bg-white/20 p-2 rounded-full">
-                                                    <Sparkles className="w-6 h-6 text-yellow-300 fill-yellow-300" />
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-bold text-lg mb-1">당신의 세포 나이를 되돌리는 조합이네요!</h3>
-                                                    <p className="text-indigo-100 text-sm leading-relaxed">
-                                                        NMN, 레스베라트롤, PQQ의 시너지가 미토콘드리아를 깨웁니다.
-                                                        제가 아는 최고의 저속노화 루틴입니다! 🐢
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Health Tags */}
-                                    <div>
-                                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">My Health Tags</p>
-                                        <div className="flex flex-wrap gap-2">
-                                            {healthTags.map((tag) => (
-                                                <span key={tag} className="px-3 py-1 bg-gradient-to-r from-green-50 to-emerald-100 text-teal-700 rounded-lg text-sm font-semibold shadow-sm border border-emerald-100">
-                                                    #{tag}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Interactions */}
-                                    <div className="space-y-4">
-                                        {/* Good */}
-                                        {analysis.good.length > 0 && (
-                                            <div className="space-y-3">
-                                                <h3 className="font-bold text-green-700 flex items-center gap-2">
-                                                    <ThumbsUp className="w-4 h-4 fill-green-700" /> 꿀조합 발견!
-                                                </h3>
-                                                {analysis.good.map((combo, idx) => (
-                                                    <div key={idx} className="bg-green-50 p-4 rounded-xl border border-green-200 text-sm shadow-sm transition-transform hover:scale-[1.01]">
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                            <span className="font-bold text-green-800">{combo.s1.name}</span>
-                                                            <span className="text-green-300 mx-1">●</span>
-                                                            <span className="font-bold text-green-800">{combo.s2.name}</span>
-                                                        </div>
-                                                        <p className="text-green-700 text-xs">서로의 효능을 높여주거나 흡수를 돕습니다.</p>
+                                            {isAntiAgingCombo && !is3DefenseLines && (
+                                                <div className="bg-gradient-to-br from-violet-600 to-indigo-700 p-5 rounded-2xl shadow-lg text-white relative overflow-hidden animate-in zoom-in-95 duration-500">
+                                                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                                                        <Sparkles className="w-24 h-24" />
                                                     </div>
-                                                ))}
-                                            </div>
-                                        )}
-
-                                        {/* Bad */}
-                                        {analysis.bad.length > 0 && (
-                                            <div className="space-y-3">
-                                                <h3 className="font-bold text-red-600 flex items-center gap-2">
-                                                    <AlertTriangle className="w-4 h-4 fill-red-600" /> 주의가 필요해요
-                                                </h3>
-                                                {analysis.bad.map((combo, idx) => (
-                                                    <div key={idx} className="bg-red-50 p-4 rounded-xl border border-red-200 text-sm shadow-sm relative overflow-hidden transition-transform hover:scale-[1.01]">
-                                                        <div className="flex items-center gap-2 mb-1 z-10 relative">
-                                                            <span className="font-bold text-red-800">{combo.s1.name}</span>
-                                                            <span className="text-red-300 mx-1">●</span>
-                                                            <span className="font-bold text-red-800">{combo.s2.name}</span>
+                                                    <div className="flex items-start gap-3 relative z-10">
+                                                        <div className="bg-white/20 p-2 rounded-full">
+                                                            <Sparkles className="w-6 h-6 text-yellow-300 fill-yellow-300" />
                                                         </div>
-                                                        <p className="text-red-700 text-xs font-medium z-10 relative">{combo.msg || "상성이 좋지 않습니다."}</p>
+                                                        <div>
+                                                            <h3 className="font-bold text-lg mb-1">당신의 세포 나이를 되돌리는 조합이네요!</h3>
+                                                            <p className="text-indigo-100 text-sm leading-relaxed">
+                                                                NMN, 레스베라트롤, PQQ의 시너지가 미토콘드리아를 깨웁니다. 제가 아는 최고의 저속노화 루틴입니다! 🐢
+                                                            </p>
+                                                        </div>
                                                     </div>
-                                                ))}
-                                            </div>
-                                        )}
+                                                </div>
+                                            )}
 
-                                        {analysis.good.length === 0 && analysis.bad.length === 0 && (
-                                            <div className="text-center py-6 bg-slate-50 rounded-xl border border-slate-100">
-                                                <p className="text-slate-500 text-sm">
-                                                    발견된 특이 상성이 없습니다.<br />안심하고 함께 드셔도 좋습니다.
+                                            {/* Health Tags */}
+                                            <div>
+                                                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">My Health Tags</p>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {healthTags.map((tag) => (
+                                                        <span key={tag} className="px-3 py-1 bg-gradient-to-r from-green-50 to-emerald-100 text-teal-700 rounded-lg text-sm font-semibold shadow-sm border border-emerald-100">
+                                                            #{tag}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Interactions */}
+                                            <div className="space-y-4">
+                                                {analysis.good.length > 0 && (
+                                                    <div className="space-y-3">
+                                                        <h3 className="font-bold text-green-700 flex items-center gap-2">
+                                                            <ThumbsUp className="w-4 h-4 fill-green-700" /> 꿀조합 발견!
+                                                        </h3>
+                                                        {analysis.good.map((combo, idx) => (
+                                                            <div key={idx} className="bg-green-50 p-4 rounded-xl border border-green-200 text-sm shadow-sm transition-transform hover:scale-[1.01]">
+                                                                <div className="flex items-center gap-2 mb-1">
+                                                                    <span className="font-bold text-green-800">{combo.s1.name}</span>
+                                                                    <span className="text-green-300 mx-1">●</span>
+                                                                    <span className="font-bold text-green-800">{combo.s2.name}</span>
+                                                                </div>
+                                                                <p className="text-green-700 text-xs">서로의 효능을 높여주거나 흡수를 돕습니다.</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {analysis.bad.length > 0 && (
+                                                    <div className="space-y-3">
+                                                        <h3 className="font-bold text-red-600 flex items-center gap-2">
+                                                            <AlertTriangle className="w-4 h-4 fill-red-600" /> 주의가 필요해요
+                                                        </h3>
+                                                        {analysis.bad.map((combo, idx) => (
+                                                            <div key={idx} className="bg-red-50 p-4 rounded-xl border border-red-200 text-sm shadow-sm relative overflow-hidden transition-transform hover:scale-[1.01]">
+                                                                <div className="flex items-center gap-2 mb-1 z-10 relative">
+                                                                    <span className="font-bold text-red-800">{combo.s1.name}</span>
+                                                                    <span className="text-red-300 mx-1">●</span>
+                                                                    <span className="font-bold text-red-800">{combo.s2.name}</span>
+                                                                </div>
+                                                                <p className="text-red-700 text-xs font-medium z-10 relative">{combo.msg || "상성이 좋지 않습니다."}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {analysis.good.length === 0 && analysis.bad.length === 0 && (
+                                                    <div className="text-center py-6 bg-slate-50 rounded-xl border border-slate-100">
+                                                        <p className="text-slate-500 text-sm">
+                                                            발견된 특이 상성이 없습니다.<br />안심하고 함께 드셔도 좋습니다.
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* 구매 버튼 */}
+                                            <div className="mt-8 pt-6 border-t border-slate-100">
+                                                <h4 className="text-center text-sm font-bold text-slate-500 mb-3">선택한 영양제 최저가 확인하기</h4>
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <button
+                                                        onClick={() => {
+                                                            if (selectedIds.length > 0) {
+                                                                const randomId = selectedIds[Math.floor(Math.random() * selectedIds.length)];
+                                                                const targetLink = COUPANG_LINKS[randomId];
+                                                                window.open(targetLink || "https://link.coupang.com/a/dy0bbp", '_blank');
+                                                            } else {
+                                                                window.open("https://link.coupang.com/a/dy0bbp", '_blank');
+                                                            }
+                                                        }}
+                                                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md transition-all hover:shadow-lg active:scale-95 flex flex-col items-center justify-center gap-1 group relative overflow-hidden"
+                                                    >
+                                                        <div className="flex items-center gap-1.5 z-10">
+                                                            <div className="bg-red-500 p-0.5 rounded-sm">
+                                                                <span className="text-[10px] font-black tracking-tighter text-white">R</span>
+                                                            </div>
+                                                            <span className="text-base">쿠팡 로켓배송</span>
+                                                        </div>
+                                                        <span className="text-[10px] font-normal opacity-80 z-10">내일 새벽 도착 보장! 🚀</span>
+                                                        <div className="absolute inset-0 bg-gradient-to-tr from-blue-700 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() => {
+                                                            const query = selectedSupplements.map(s => s.name).join(" ");
+                                                            window.open(`https://kr.iherb.com/search?kw=${encodeURIComponent(query)}&rcode=CYX2175`, '_blank');
+                                                        }}
+                                                        className="bg-[#458500] hover:bg-[#3d7400] text-white font-bold py-3 rounded-xl shadow-md transition-all hover:shadow-lg active:scale-95 flex flex-col items-center justify-center gap-1 group relative overflow-hidden"
+                                                    >
+                                                        <div className="flex items-center gap-1.5 z-10">
+                                                            <ShoppingBag className="w-4 h-4" />
+                                                            <span className="text-base">아이허브</span>
+                                                        </div>
+                                                        <span className="text-[10px] font-normal opacity-80 z-10">글로벌 최저가 확인 🌿</span>
+                                                        <div className="absolute inset-0 bg-gradient-to-tr from-[#366800] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                    </button>
+                                                </div>
+                                                <p className="text-[11px] text-center text-slate-500 mt-3 leading-relaxed bg-slate-100 p-2 rounded-lg">
+                                                    ⚠️ <strong>공정위 문구 알림</strong><br />
+                                                    &ldquo;이 포스팅은 쿠팡 파트너스 활동의 일환으로,<br />이에 따른 일정액의 수수료를 제공받습니다.&rdquo;<br />
+                                                    <span className="text-[10px] text-slate-400 font-normal mt-1 block">(아이허브 링크 또한 제휴 활동이 포함될 수 있습니다.)</span>
                                                 </p>
                                             </div>
-                                        )}
-                                    </div>
-
-                                    {/* Monetization Strategy: Two-Buttons */}
-                                    <div className="mt-8 pt-6 border-t border-slate-100">
-                                        <h4 className="text-center text-sm font-bold text-slate-500 mb-3">
-                                            선택한 영양제 최저가 확인하기
-                                        </h4>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            {/* Coupang */}
-                                            <button
-                                                onClick={() => {
-                                                    const COUPANG_LINKS: Record<string, string> = {
-                                                        "omega3": "https://link.coupang.com/a/dyYztG",
-                                                        "multivitamin": "https://link.coupang.com/a/dyY0NM",
-                                                        "probiotics": "https://link.coupang.com/a/dyY4DH",
-                                                        "magnesium": "https://link.coupang.com/a/dyY5ZR",
-                                                        "calcium": "https://link.coupang.com/a/dyZdtI",
-                                                        "vit_c": "https://link.coupang.com/a/dyZeNr",
-                                                        "vit_d": "https://link.coupang.com/a/dyZfQg",
-                                                        "vit_b_complex": "https://link.coupang.com/a/dyZgQH",
-                                                        "iron": "https://link.coupang.com/a/dyZi33",
-                                                        "zinc": "https://link.coupang.com/a/dyZj5b",
-                                                        "lutein": "https://link.coupang.com/a/dyZloa",
-                                                        "milk_thistle": "https://link.coupang.com/a/dyZmmG",
-                                                        "propolis": "https://link.coupang.com/a/dyZnwh",
-                                                        "ginseng": "https://link.coupang.com/a/dyZoy2",
-                                                        "collagen": "https://link.coupang.com/a/dyZpw5",
-                                                        "coq10": "https://link.coupang.com/a/dyZqw5",
-                                                        "msm": "https://link.coupang.com/a/dyZrAy",
-                                                        "theanine": "https://link.coupang.com/a/dyZtUm",
-                                                        "arginine": "https://link.coupang.com/a/dyZu1E",
-                                                        "biotin": "https://link.coupang.com/a/dyZxos",
-                                                        "quercetin": "https://link.coupang.com/a/dyZygG",
-                                                        "bromelain": "https://link.coupang.com/a/dyZy3m",
-                                                        "glutathione": "https://link.coupang.com/a/dyZAaZ",
-                                                        "nmn": "https://link.coupang.com/a/dyZA3w",
-                                                        "resveratrol": "https://link.coupang.com/a/dyZCtB",
-                                                        "pqq": "https://link.coupang.com/a/dyZDWJ",
-                                                        "astragalus": "https://link.coupang.com/a/dyZE0i",
-                                                        "urolithin_a": "https://link.coupang.com/a/dy0bbp"
-                                                    };
-
-                                                    // Strategy: Randomly pick ONE item from selection to ensure tracking
-                                                    // This guarantees the user enters via a Partner Link, setting the session cookie.
-                                                    if (selectedIds.length > 0) {
-                                                        const randomId = selectedIds[Math.floor(Math.random() * selectedIds.length)];
-                                                        const targetLink = COUPANG_LINKS[randomId];
-
-                                                        if (targetLink) {
-                                                            window.open(targetLink, '_blank');
-                                                        } else {
-                                                            // Fallback: Coupang Home Partner Link (User Request)
-                                                            window.open("https://link.coupang.com/a/dy0bbp", '_blank');
-                                                        }
-                                                    } else {
-                                                        // Fallback: Coupang Home Partner Link
-                                                        window.open("https://link.coupang.com/a/dy0bbp", '_blank');
-                                                    }
-                                                }}
-                                                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md transition-all hover:shadow-lg active:scale-95 flex flex-col items-center justify-center gap-1 group relative overflow-hidden"
-                                            >
-                                                <div className="flex items-center gap-1.5 z-10">
-                                                    <div className="bg-red-500 p-0.5 rounded-sm">
-                                                        <span className="text-[10px] font-black tracking-tighter text-white">R</span>
-                                                    </div>
-                                                    <span className="text-base">쿠팡 로켓배송</span>
-                                                </div>
-                                                <span className="text-[10px] font-normal opacity-80 z-10">내일 새벽 도착 보장! 🚀</span>
-                                                <div className="absolute inset-0 bg-gradient-to-tr from-blue-700 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            </button>
-
-                                            {/* iHerb */}
-                                            <button
-                                                onClick={() => {
-                                                    const query = selectedSupplements.map(s => s.name).join(" ");
-                                                    window.open(`https://kr.iherb.com/search?kw=${encodeURIComponent(query)}&rcode=CYX2175`, '_blank');
-                                                }}
-                                                className="bg-[#458500] hover:bg-[#3d7400] text-white font-bold py-3 rounded-xl shadow-md transition-all hover:shadow-lg active:scale-95 flex flex-col items-center justify-center gap-1 group relative overflow-hidden"
-                                            >
-                                                <div className="flex items-center gap-1.5 z-10">
-                                                    <ShoppingBag className="w-4 h-4" />
-                                                    <span className="text-base">아이허브</span>
-                                                </div>
-                                                <span className="text-[10px] font-normal opacity-80 z-10">글로벌 최저가 확인 🌿</span>
-                                                <div className="absolute inset-0 bg-gradient-to-tr from-[#366800] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            </button>
                                         </div>
-                                        <p className="text-[11px] text-center text-slate-500 mt-3 leading-relaxed bg-slate-100 p-2 rounded-lg">
-                                            ⚠️ <strong>공정위 문구 알림</strong><br />
-                                            "이 포스팅은 쿠팡 파트너스 활동의 일환으로,<br />이에 따른 일정액의 수수료를 제공받습니다."<br />
-                                            <span className="text-[10px] text-slate-400 font-normal mt-1 block">
-                                                (아이허브 링크 또한 제휴 활동이 포함될 수 있습니다.)
-                                            </span>
-                                        </p>
-                                    </div>
-                                </div>
+                                    )}
+                                </>
+                            )}
+
+                            {/* 타임테이블 탭 */}
+                            {activeTab === "timetable" && (
+                                <>
+                                    {selectedIds.length === 0 ? (
+                                        <div className="text-center py-12 text-slate-400">
+                                            <Clock className="w-16 h-16 mx-auto mb-4 opacity-20" />
+                                            <p className="text-lg">영양제를 선택하면<br />섭취 타임테이블을 만들어 드려요!</p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-3 animate-in fade-in duration-300">
+                                            <p className="text-xs text-slate-400 mb-3">선택한 영양제의 최적 섭취 시간대별 분류입니다.</p>
+                                            {TIMING_ORDER.map(slot => {
+                                                const items = timetable[slot];
+                                                if (!items || items.length === 0) return null;
+                                                return (
+                                                    <div key={slot} className={clsx("p-4 rounded-xl border", TIMING_COLORS[slot])}>
+                                                        <div className="flex items-center gap-2 mb-2 font-bold text-sm">
+                                                            {TIMING_ICONS[slot]} {slot}
+                                                        </div>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {items.map(s => (
+                                                                <span key={s.id} className="bg-white/70 px-2.5 py-1 rounded-lg text-xs font-semibold shadow-sm">
+                                                                    {s.name}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                            <div className="mt-4 pt-3 border-t border-slate-100 flex gap-2">
+                                                <button
+                                                    onClick={shareResults}
+                                                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2"
+                                                >
+                                                    <Share2 className="w-4 h-4" />
+                                                    {copied ? "링크 복사됨!" : "타임테이블 공유"}
+                                                </button>
+                                                <button
+                                                    onClick={saveRoutine}
+                                                    className="flex-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 text-sm font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2"
+                                                >
+                                                    <Star className="w-4 h-4" />
+                                                    루틴 저장
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
                             )}
                         </div>
                     </section>
                 </section>
 
+                {/* AdSense 광고 - 메인 콘텐츠 상단 */}
+                <div className="max-w-4xl mx-auto px-6 py-4">
+                    <AdBanner slot="1234567890" format="horizontal" className="rounded-xl min-h-[90px] bg-slate-100" />
+                </div>
 
                 {/* Info Section 1: Worst Combinations */}
                 <section id="worst-combinations" className="py-16 bg-white border-t border-slate-100">
@@ -483,7 +686,7 @@ export default function NutriPage() {
                     </div>
                 </section>
 
-                {/* Info Section 1.5: Best Combinations (New) */}
+                {/* Info Section 1.5: Best Combinations */}
                 <section id="best-combinations" className="py-16 bg-green-50/50">
                     <div className="max-w-4xl mx-auto px-6">
                         <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-slate-800">💊 약사들이 추천하는 꿀조합 TOP 3</h2>
@@ -493,9 +696,7 @@ export default function NutriPage() {
                                     <div className="text-emerald-600 font-bold mb-3 text-lg flex items-center gap-2">
                                         <ThumbsUp className="w-5 h-5" /> {combo.title}
                                     </div>
-                                    <p className="text-slate-600 text-sm leading-relaxed">
-                                        {combo.reason}
-                                    </p>
+                                    <p className="text-slate-600 text-sm leading-relaxed">{combo.reason}</p>
                                 </div>
                             ))}
                         </div>
@@ -507,12 +708,16 @@ export default function NutriPage() {
                     <div className="max-w-4xl mx-auto px-6">
                         <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 text-slate-800">🐢 {seoContent.trend_guide.title}</h2>
                         <p className="text-center text-slate-500 mb-10">내 몸의 시간을 되돌리는 과학적인 영양 설계</p>
-
                         <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 leading-8 text-slate-700 whitespace-pre-line">
                             <p dangerouslySetInnerHTML={{ __html: seoContent.trend_guide.content.replace(/\*\*(.*?)\*\*/g, '<strong class="text-indigo-600 bg-indigo-50 px-1 rounded">$1</strong>').replace(/\n/g, '<br/>') }} />
                         </div>
                     </div>
                 </section>
+
+                {/* AdSense - FAQ 사이 */}
+                <div className="max-w-3xl mx-auto px-6 py-2">
+                    <AdBanner slot="9876543210" format="auto" className="rounded-xl min-h-[100px] bg-slate-100" />
+                </div>
 
                 {/* Info Section 3: FAQ */}
                 <section id="faq" className="py-16 bg-white">
@@ -547,10 +752,26 @@ export default function NutriPage() {
                         제공되는 정보는 일반적인 영양 지식에 기반하며, 개인의 체질에 따라 다를 수 있습니다.
                     </p>
                     <p className="mt-4 font-medium text-slate-500">
-                        "이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다."
+                        &ldquo;이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.&rdquo;
                     </p>
                 </div>
             </footer>
         </div>
+    );
+}
+
+// Wrapper with Suspense for useSearchParams
+export default function NutriPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+                <div className="text-slate-400 flex flex-col items-center gap-3">
+                    <Pill className="w-12 h-12 animate-pulse" />
+                    <p>로딩 중...</p>
+                </div>
+            </div>
+        }>
+            <NutriPageInner />
+        </Suspense>
     );
 }
