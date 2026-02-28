@@ -278,7 +278,8 @@
         "best_with": [
             "vit_c",
             "selenium",
-            "milk_thistle"
+            "milk_thistle",
+            "ergothioneine"
         ],
         "worst_with": [],
         "description": "백옥 주사의 주성분으로, 강력한 항산화 효과와 피부 미백에 도움을 줍니다.",
@@ -348,5 +349,19 @@
         "worst_with": [],
         "description": "석류 등에서 장내 미생물이 만드는 성분으로, 손상된 미토콘드리아를 청소(마이토파지)하여 세포를 젊게 유지합니다.",
         "caution_msg": "장내 미생물 환경에 따라 체내 생성이 안 될 수 있어 보충제 섭취가 권장됩니다."
+    },
+    {
+        "id": "ergothioneine",
+        "name": "에르고치오네인 (EGT)",
+        "category": "항산화/저속노화",
+        "best_with": [
+            "glutathione",
+            "coq10",
+            "nmn",
+            "selenium"
+        ],
+        "worst_with": [],
+        "description": "버섯류에 풍부한 희귀 아미노산 항산화제로, 세포 핵과 미토콘드리아를 직접 보호합니다. '장수 비타민'으로 불리며 저속노화 분야에서 주목받는 성분입니다.",
+        "caution_msg": "글루타치온과 함께 복용하면 항산화 효과가 시너지를 냅니다. 현재 특별한 부작용은 보고된 것이 없으나, 임산부 및 수유부는 전문가와 상담 후 섭취를 권장합니다."
     }
 ]
