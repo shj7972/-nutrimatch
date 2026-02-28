@@ -34,7 +34,7 @@ const HEALTH_GOALS = [
     { id: "energy", label: "💪 피로 회복 & 활력", supplements: ["vit_b_complex", "coq10", "magnesium", "iron"] },
     { id: "eye", label: "👁️ 눈 건강", supplements: ["lutein", "omega3", "vit_c"] },
     { id: "skin", label: "✨ 피부 미용", supplements: ["collagen", "vit_c", "glutathione", "biotin"] },
-    { id: "antiaging", label: "🐢 저속노화", supplements: ["nmn", "resveratrol", "pqq", "urolithin_a", "omega3"] },
+    { id: "antiaging", label: "🐢 저속노화", supplements: ["nmn", "resveratrol", "pqq", "urolithin_a", "omega3", "ergothioneine"] },
     { id: "sleep", label: "😴 수면 개선", supplements: ["magnesium", "theanine"] },
     { id: "immunity", label: "🛡️ 면역 강화", supplements: ["vit_d", "zinc", "propolis", "vit_c"] },
     { id: "joint", label: "🦴 관절 & 뼈", supplements: ["calcium", "vit_d", "magnesium", "collagen", "msm"] },
@@ -152,7 +152,7 @@ function NutriPageInner() {
     };
 
     const setLowSpeedAgingCombo = () => {
-        const combo = ["nmn", "resveratrol", "pqq", "omega3", "urolithin_a"];
+        const combo = ["nmn", "resveratrol", "pqq", "omega3", "urolithin_a", "ergothioneine"];
         setSelectedIds((prev) => Array.from(new Set([...prev, ...combo])));
     };
 
@@ -207,7 +207,7 @@ function NutriPageInner() {
     }, [selectedSupplements]);
 
     const isAntiAgingCombo = useMemo(() => {
-        const target = ["nmn", "resveratrol", "pqq", "omega3", "urolithin_a"];
+        const target = ["nmn", "resveratrol", "pqq", "omega3", "urolithin_a", "ergothioneine"];
         return target.every(id => selectedIds.includes(id));
     }, [selectedIds]);
 
