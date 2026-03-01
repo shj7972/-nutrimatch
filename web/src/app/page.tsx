@@ -88,15 +88,14 @@ function NutriPageInner() {
     const saveAsImage = async () => {
         if (!timetableRef.current) return;
         try {
-            const html2canvas = (await import("html2canvas")).default;
-            const canvas = await html2canvas(timetableRef.current, {
+            const { toPng } = await import("html-to-image");
+            const dataUrl = await toPng(timetableRef.current, {
                 backgroundColor: "#f8fafc",
-                scale: 2,
-                useCORS: true,
+                pixelRatio: 2,
             });
             const link = document.createElement("a");
             link.download = `nutrimatch_routine_${new Date().toLocaleDateString("ko-KR").replace(/\./g, "").replace(/ /g, "")}.png`;
-            link.href = canvas.toDataURL("image/png");
+            link.href = dataUrl;
             link.click();
         } catch (e) {
             console.error("이미지 저장 실패:", e);
