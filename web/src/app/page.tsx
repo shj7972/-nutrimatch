@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useMemo, useEffect, Suspense } from "react";
+import { useState, useMemo, useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import supplementsData from "@/data/supplements.json";
 import seoContent from "@/data/seo_content.json";
 import { Supplement } from "@/types";
 import {
     Check, AlertTriangle, ThumbsUp, ShoppingBag, Pill, Sparkles, Zap,
-    Shield, Crown, RotateCcw, Share2, Info, Target, Clock, BookmarkCheck, Star, BookOpen, ArrowRight
+    Shield, Crown, RotateCcw, Share2, Info, Target, Clock, BookmarkCheck, Star, BookOpen, ArrowRight, Camera
 } from "lucide-react";
 import Link from "next/link";
 import clsx from "clsx";
@@ -83,6 +83,25 @@ function NutriPageInner() {
     const [savedRoutine, setSavedRoutine] = useState<string[]>([]);
     const [activeTab, setActiveTab] = useState<"select" | "timetable">("select");
     const [showGoalModal, setShowGoalModal] = useState(false);
+    const timetableRef = useRef<HTMLDivElement>(null);
+
+    const saveAsImage = async () => {
+        if (!timetableRef.current) return;
+        try {
+            const html2canvas = (await import("html2canvas")).default;
+            const canvas = await html2canvas(timetableRef.current, {
+                backgroundColor: "#f8fafc",
+                scale: 2,
+                useCORS: true,
+            });
+            const link = document.createElement("a");
+            link.download = `nutrimatch_routine_${new Date().toLocaleDateString("ko-KR").replace(/\./g, "").replace(/ /g, "")}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        } catch (e) {
+            console.error("이미지 저장 실패:", e);
+        }
+    };
 
     // URL 파라미터에서 초기 선택값 로드
     useEffect(() => {
@@ -247,6 +266,12 @@ function NutriPageInner() {
         "pqq": "https://link.coupang.com/a/dyZDWJ",
         "astragalus": "https://link.coupang.com/a/dyZE0i",
         "urolithin_a": "https://link.coupang.com/a/dy0bbp",
+        "ergothioneine": "https://link.coupang.com/a/dy0bbp",
+        "selenium": "https://link.coupang.com/a/dyZj5b",
+        "tmg": "https://link.coupang.com/a/dyZA3w",
+        "nac": "https://link.coupang.com/a/dyZAaZ",
+        "spirulina": "https://link.coupang.com/a/dyZmmG",
+        "alpha_lipoic": "https://link.coupang.com/a/dyZqw5",
     };
 
     return (
@@ -623,25 +648,28 @@ function NutriPageInner() {
                                     ) : (
                                         <div className="space-y-3 animate-in fade-in duration-300">
                                             <p className="text-xs text-slate-400 mb-3">선택한 영양제의 최적 섭취 시간대별 분류입니다.</p>
-                                            {TIMING_ORDER.map(slot => {
-                                                const items = timetable[slot];
-                                                if (!items || items.length === 0) return null;
-                                                return (
-                                                    <div key={slot} className={clsx("p-4 rounded-xl border", TIMING_COLORS[slot])}>
-                                                        <div className="flex items-center gap-2 mb-2 font-bold text-sm">
-                                                            {TIMING_ICONS[slot]} {slot}
+                                            <div ref={timetableRef} className="space-y-3 bg-slate-50 p-3 rounded-xl">
+                                                <p className="text-xs font-bold text-slate-500 text-center pb-1">📅 내 영양제 루틴 — nutrimatch.kr</p>
+                                                {TIMING_ORDER.map(slot => {
+                                                    const items = timetable[slot];
+                                                    if (!items || items.length === 0) return null;
+                                                    return (
+                                                        <div key={slot} className={clsx("p-4 rounded-xl border", TIMING_COLORS[slot])}>
+                                                            <div className="flex items-center gap-2 mb-2 font-bold text-sm">
+                                                                {TIMING_ICONS[slot]} {slot}
+                                                            </div>
+                                                            <div className="flex flex-wrap gap-2">
+                                                                {items.map(s => (
+                                                                    <span key={s.id} className="bg-white/70 px-2.5 py-1 rounded-lg text-xs font-semibold shadow-sm">
+                                                                        {s.name}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
                                                         </div>
-                                                        <div className="flex flex-wrap gap-2">
-                                                            {items.map(s => (
-                                                                <span key={s.id} className="bg-white/70 px-2.5 py-1 rounded-lg text-xs font-semibold shadow-sm">
-                                                                    {s.name}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                            <div className="mt-4 pt-3 border-t border-slate-100 flex gap-2">
+                                                    );
+                                                })}
+                                            </div>
+                                            <div className="mt-4 pt-3 border-t border-slate-100 flex gap-2 flex-wrap">
                                                 <button
                                                     onClick={shareResults}
                                                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2"
@@ -655,6 +683,13 @@ function NutriPageInner() {
                                                 >
                                                     <Star className="w-4 h-4" />
                                                     루틴 저장
+                                                </button>
+                                                <button
+                                                    onClick={saveAsImage}
+                                                    className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white text-sm font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm active:scale-95"
+                                                >
+                                                    <Camera className="w-4 h-4" />
+                                                    📸 이미지로 저장 (공유용)
                                                 </button>
                                             </div>
                                         </div>
