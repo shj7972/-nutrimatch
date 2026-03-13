@@ -2,7 +2,6 @@
 
 import { Pill, RotateCcw, BookmarkCheck, BookOpen } from "lucide-react";
 import Link from "next/link";
-import clsx from "clsx";
 
 interface HeaderProps {
   selectedCount: number;
@@ -11,7 +10,7 @@ interface HeaderProps {
   onLoadSaved: () => void;
 }
 
-export function Header({ selectedCount, savedRoutineCount, onReset, onLoadSaved }: HeaderProps) {
+export function Header({ savedRoutineCount, onReset, onLoadSaved }: HeaderProps) {
   return (
     <header className="bg-blue-600 text-white p-4 md:p-6 shadow-md sticky top-0 z-50">
       <div className="max-w-6xl mx-auto flex items-center justify-between">

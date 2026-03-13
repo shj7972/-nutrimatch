@@ -1,7 +1,6 @@
 "use client";
 
-import { Clock, AlertTriangle, ThumbsUp, Share2, Star, ShoppingBag } from "lucide-react";
-import clsx from "clsx";
+import { AlertTriangle, ThumbsUp, Share2, Star, ShoppingBag } from "lucide-react";
 import { Supplement } from "@/types";
 import { SpecialMessages } from "./SpecialMessages";
 
@@ -178,8 +177,8 @@ export function AnalysisResult({
 
         <p className="text-[11px] text-center text-slate-500 mt-3 leading-relaxed bg-slate-100 p-2 rounded-lg">
           ⚠️ <strong>공정위 문구 알림</strong><br />
-          "이 포스팅은 쿠팡 파트너스 활동의 일환으로,<br />
-          이에 따른 일정액의 수수료를 제공받습니다."
+          &quot;이 포스팅은 쿠팡 파트너스 활동의 일환으로,<br />
+          이에 따른 일정액의 수수료를 제공받습니다.&quot;
         </p>
       </div>
     </div>

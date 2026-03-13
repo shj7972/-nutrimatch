@@ -16,7 +16,7 @@ export const pageMetadata = {
   }),
   
   // 영양제 상세 페이지 (동적)
-  nutrient: (name: string, description: string) => generateMetadata({
+  nutrient: (name: string) => generateMetadata({
     title: `${name} - 효능, 부작용, 궁합`,
     description: `${name}의 효능, 부작용, 추천 섭취량 및 다른 영양제와의 궁합을 확인하세요.`,
     path: `/nutrient/${name}`,

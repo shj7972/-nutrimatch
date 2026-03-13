@@ -134,7 +134,7 @@ export function FAQSection({ questions, categories }: FAQSectionProps) {
                           ),
                         }}
                       />
-                      <{/* Related Supplements */}
+                      {/* Related Supplements */}
                       {faq.related_supplements.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-2">
                           <span className="text-xs text-slate-400">관련 영양제:</span>
@@ -149,7 +149,8 @@ export function FAQSection({ questions, categories }: FAQSectionProps) {
                           ))}
                         </div>
                       )}
-                    </div>                  </div>
+                    </div>
+                  </div>
                 )}
               </div>
             ))

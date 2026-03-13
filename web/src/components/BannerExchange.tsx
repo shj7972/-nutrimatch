@@ -59,15 +59,19 @@ const ALL_BANNERS: Banner[] = [
 
 export default function BannerExchange() {
     const [randomBanners, setRandomBanners] = useState<Banner[]>([]);
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        // Shuffle and pick 3
-        const shuffled = [...ALL_BANNERS].sort(() => 0.5 - Math.random());
-        setRandomBanners(shuffled.slice(0, 3));
+        const timer = setTimeout(() => {
+            setMounted(true);
+            const shuffled = [...ALL_BANNERS].sort(() => 0.5 - Math.random());
+            setRandomBanners(shuffled.slice(0, 3));
+        }, 0);
+        return () => clearTimeout(timer);
     }, []);
 
-    if (randomBanners.length === 0) {
-        return null; // Don't render empty hydration mismatch
+    if (!mounted || randomBanners.length === 0) {
+        return null; 
     }
 
     return (
@@ -84,7 +88,7 @@ export default function BannerExchange() {
                             title={banner.title}
                             className="transition-opacity hover:opacity-80"
                         >
-                            <img
+                            <Image
                                 src={banner.src}
                                 alt={banner.alt}
                                 width={234}

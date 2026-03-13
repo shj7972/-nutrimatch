@@ -18,9 +18,7 @@ import {
 import { 
   HEALTH_GOALS, 
   ANTI_AGING_COMBO, 
-  THREE_DEFENSE_LINES, 
   TIMING_ORDER, 
-  TIMING_COLORS, 
   LOCAL_STORAGE_KEY, 
   COUPANG_LINKS 
 } from "@/constants/healthGoals";
@@ -130,7 +128,7 @@ function NutriPageContent() {
   };
 
   const selectedSupplements = useMemo(() => {
-    return supplementsData.filter((s) => selectedIds.includes(s.id));
+    return (supplementsData as unknown as Supplement[]).filter((s) => selectedIds.includes(s.id));
   }, [selectedIds]);
 
   const analysis = useMemo(() => {
