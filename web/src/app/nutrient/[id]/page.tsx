@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { siteConfig, generateOrganizationJsonLd } from "@/config/site";
 import supplementsData from "@/data/supplements.json";
 import { Supplement } from "@/types";
 import NutrientDetailClient from "@/components/NutrientDetailClient";
@@ -21,30 +22,46 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     if (!supplement) {
         return {
             title: "영양제를 찾을 수 없습니다",
+            robots: { index: false, follow: false },
         };
     }
 
-    const title = `${supplement.name} 효능, 부작용, 복용법`;
-    const description = `${supplement.name} - ${supplement.description} 섭취 시간: ${supplement.timing || "식후 권장"}. ${supplement.efficacy?.slice(0, 2).join(", ") || ""}`;
+    const fullTitle = `${supplement.name} - 효능, 부작용, 궁합 | ${siteConfig.name}`;
+    const description = `${supplement.name}의 효능, 부작용, 추천 섭취량 및 다른 영양제와의 궁합을 확인하세요. ${supplement.description.slice(0, 60)}...`;
+    const url = `${siteConfig.url}/nutrient/${id}`;
 
     return {
-        title,
+        title: fullTitle,
         description,
-        keywords: [supplement.name, `${supplement.name} 효능`, `${supplement.name} 부작용`, `${supplement.name} 복용법`, supplement.category, "영양제 궁합"],
+        keywords: [
+            supplement.name, 
+            `${supplement.name} 효능`, 
+            `${supplement.name} 부작용`, 
+            `${supplement.name} 복용법`, 
+            supplement.category, 
+            "영양제 궁합",
+            "영양제 상세"
+        ],
         alternates: {
-            canonical: `https://nutrimatch.kr/nutrient/${id}`,
+            canonical: url,
         },
         openGraph: {
-            title: `${title} | Nutri-Match`,
+            title: fullTitle,
             description,
-            url: `https://nutrimatch.kr/nutrient/${id}`,
-            siteName: "Nutri-Match",
-            locale: "ko_KR",
+            url,
+            siteName: siteConfig.name,
+            locale: siteConfig.locale,
             type: "article",
+            images: [{
+                url: `${siteConfig.url}/api/og?title=${encodeURIComponent(supplement.name)}`,
+                width: 1200,
+                height: 630,
+                alt: `${supplement.name} 상세 정보`,
+            }],
         },
         twitter: {
-            card: "summary",
-            title: `${title} | Nutri-Match`,
+            card: "summary_large_image",
+            title: fullTitle,
             description,
         },
     };
@@ -59,29 +76,35 @@ export default async function NutrientDetailPage({ params }: { params: Promise<{
     }
 
     // JSON-LD Article structured data
-    const jsonLd = {
+    const organizationJsonLd = generateOrganizationJsonLd();
+    
+    const articleJsonLd = {
         "@context": "https://schema.org",
         "@type": "Article",
-        "headline": `${supplement.name} 효능, 부작용, 복용법`,
-        "description": supplement.description,
-        "url": `https://nutrimatch.kr/nutrient/${id}`,
-        "publisher": {
-            "@type": "Organization",
-            "name": "Nutri-Match"
-        },
-        "about": {
+        headline: `${supplement.name} 효능, 부작용, 복용법`,
+        description: supplement.description,
+        url: `${siteConfig.url}/nutrient/${id}`,
+        publisher: organizationJsonLd,
+        author: organizationJsonLd,
+        about: {
             "@type": "Drug",
-            "name": supplement.name,
-            "description": supplement.description,
+            name: supplement.name,
+            description: supplement.description,
         },
-        "inLanguage": "ko"
+        inLanguage: siteConfig.language,
+        datePublished: new Date().toISOString(),
+        dateModified: new Date().toISOString(),
+        mainEntityOfPage: {
+            "@type": "WebPage",
+            "@id": `${siteConfig.url}/nutrient/${id}`,
+        },
     };
 
     return (
         <>
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
             />
             <NutrientDetailClient id={id} />
         </>

@@ -1,10 +1,40 @@
 User-agent: *
 Allow: /
 
+# Disallow patterns
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /private/
+
+# Crawl delay (optional, for controlling bot requests)
+Crawl-delay: 1
+
+# Sitemap
+Sitemap: https://nutrimatch.kr/sitemap.xml
+
+# Host directive (optional, helps search engines identify preferred domain)
+Host: https://nutrimatch.kr
+
+# Google-specific directives
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Googlebot-News
+Allow: /
+
+# Naver-specific directives
 User-agent: Yeti
 Allow: /
 
-User-agent: Daumoa
+# Bing-specific directives
+User-agent: Bingbot
 Allow: /
 
-Sitemap: https://nutrimatch.kr/sitemap.xml
+# DuckDuckGo
+User-agent: DuckDuckBot
+Allow: /

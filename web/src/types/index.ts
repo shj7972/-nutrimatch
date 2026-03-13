@@ -11,3 +11,6 @@ export interface Supplement {
   timing?: string;
   precautions?: string;
 }
+
+// SEO Types
+export * from "./seo";

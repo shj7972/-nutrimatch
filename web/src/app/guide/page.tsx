@@ -1,22 +1,11 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { pageMetadata } from "@/config/pageMetadata";
 import guidePosts from "@/data/guide_posts.json";
 import { BookOpen, ArrowRight, Tag } from "lucide-react";
 
-export const metadata: Metadata = {
-    title: "영양제 가이드 | Nutri-Match",
-    description: "영양제 섭취 시간, 조합, 효능에 대한 전문 가이드. 오메가3, 철분, 비타민D, 저속노화 루틴까지 과학적인 정보를 제공합니다.",
-    keywords: ["영양제 가이드", "영양제 섭취법", "저속노화", "영양제 조합", "비타민D 결핍", "철분제 흡수율"],
-    alternates: { canonical: "https://nutrimatch.kr/guide" },
-    openGraph: {
-        title: "영양제 가이드 | Nutri-Match",
-        description: "오메가3, 철분, 비타민D, 저속노화 루틴까지 과학적 영양제 정보",
-        url: "https://nutrimatch.kr/guide",
-        siteName: "Nutri-Match",
-        locale: "ko_KR",
-        type: "website",
-    },
-};
+// 중앙화된 메타데이터 사용
+export const metadata: Metadata = pageMetadata.guide;
 
 const CATEGORY_COLORS: Record<string, string> = {
     "섭취 타이밍": "bg-blue-100 text-blue-700",
