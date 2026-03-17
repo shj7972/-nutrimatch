@@ -39,7 +39,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // Guide routes - 가이드 페이지
   const guideRoutes: MetadataRoute.Sitemap = guidePosts.map((post) => ({
     url: `${baseUrl}/guide/${post.slug}`,
-    lastModified: new Date(post.updatedAt || new Date()),
+    lastModified: new Date(post.date),
     changeFrequency: 'monthly',
     priority: 0.7,
   }));
