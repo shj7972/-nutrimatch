@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Clock, Share2, Star, Camera } from "lucide-react";
 import clsx from "clsx";
@@ -36,7 +36,7 @@ export function Timetable({
   return (
     <div className="space-y-3 animate-in fade-in duration-300">
       <p className="text-xs text-slate-400 mb-3">
-        선택한 영양제의 최적 섭� 시간대별 분류입니다.
+        선택한 영양제의 최적 섭취 시간대별 분류입니다.
       </p>
 
       <div className="space-y-3 bg-slate-50 p-3 rounded-xl">

@@ -1,0 +1,6 @@
+fix: bug fixes  
+  
+- Timetable text encoding fix  
+- Add /faq page with FAQ JSON-LD  
+- Connect FAQSection to main page  
+- Remove empty /nutri directory  

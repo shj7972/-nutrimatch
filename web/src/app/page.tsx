@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import supplementsData from "@/data/supplements.json";
 import seoContent from "@/data/seo_content.json";
 import { Supplement } from "@/types";
+import type { FAQItem, FAQCategory } from "@/types";
 import { 
   Header, 
   SupplementGrid, 
@@ -15,6 +16,7 @@ import {
   AdBanner,
   BannerExchange,
 } from "@/components";
+import { FAQSection } from "@/components/sections/FAQSection";
 import { 
   HEALTH_GOALS, 
   ANTI_AGING_COMBO, 
@@ -300,6 +302,10 @@ function NutriPageContent() {
   );
 }
 
+// FAQ 데이터 (seo_content.json에서 로드)
+const faqQuestions = seoContent.faq.questions as FAQItem[];
+const faqCategories = seoContent.faq.categories as FAQCategory[];
+
 // SEO 섹션 컴포넌트
 function SEOSections() {
   return (
@@ -419,6 +425,9 @@ function SEOSections() {
           </div>
         </div>
       </section>
+
+      {/* FAQ 섹션 */}
+      <FAQSection questions={faqQuestions} categories={faqCategories} />
 
       <BannerExchange />
     </>
