@@ -3,7 +3,7 @@ export const siteConfig = {
   name: "Nutri-Match",
   shortName: "NutriMatch",
   url: "https://nutrimatch.kr",
-  ogImage: "https://nutrimatch.kr/og-image.png",
+  ogImage: "https://nutrimatch.kr/opengraph-image",
   description: {
     default: "나만의 영양제 궁합 분석기. 영양제 조합의 시너지와 부작용을 1초 만에 확인하세요.",
     long: "내가 먹는 영양제, 같이 먹어도 될까? Nutri-Match에서 1초 만에 궁합과 부작용을 확인하세요. 저속노화(NMN, 레스베라트롤, 유로리틴A) 조합, 영양제 섭취 시간까지 완벽 가이드.",
@@ -70,7 +70,7 @@ export const siteConfig = {
     siteName: "Nutri-Match",
     images: [
       {
-        url: "https://nutrimatch.kr/og-image.png",
+        url: "https://nutrimatch.kr/opengraph-image",
         width: 1200,
         height: 630,
         alt: "Nutri-Match - 나만의 영양제 궁합 분석기",
