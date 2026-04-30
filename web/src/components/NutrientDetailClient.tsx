@@ -16,8 +16,6 @@ import {
     Pill,
     ShoppingBag,
 } from "lucide-react";
-import AdBanner from "@/components/AdBanner";
-
 // 쿠팡 파트너스 링크 맵 (메인 page.tsx와 동일)
 const COUPANG_LINKS: Record<string, string> = {
     "omega3": "https://link.coupang.com/a/dyYztG",
@@ -155,50 +153,6 @@ export default function NutrientDetailClient({ id }: { id: string }) {
                     </div>
                 </section>
 
-                {/* AdSense 광고 */}
-                <AdBanner slot="3456789012" format="rectangle" className="rounded-2xl overflow-hidden min-h-[100px] bg-slate-100" />
-
-                {/* Combinations Links */}
-                <div className="grid md:grid-cols-2 gap-6">
-                    {/* Best Combos */}
-                    <div className="space-y-3">
-                        <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                            <ThumbsUp className="w-5 h-5 text-emerald-500" /> 같이 먹으면 좋은 짝꿍
-                        </h3>
-                        {bestCombos.length > 0 ? (
-                            <div className="grid gap-2">
-                                {bestCombos.map(s => (
-                                    <Link key={s.id} href={`/nutrient/${s.id}`} className="block bg-white p-3 rounded-xl border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all flex justify-between items-center group">
-                                        <span className="font-medium text-slate-700 group-hover:text-emerald-700">{s.name}</span>
-                                        <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{s.category}</span>
-                                    </Link>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="text-sm text-slate-400">특별한 추천 조합이 없습니다.</p>
-                        )}
-                    </div>
-
-                    {/* Worst Combos */}
-                    <div className="space-y-3">
-                        <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                            <ThumbsDown className="w-5 h-5 text-red-500" /> 같이 먹으면 안 좋은 조합
-                        </h3>
-                        {worstCombos.length > 0 ? (
-                            <div className="grid gap-2">
-                                {worstCombos.map(s => (
-                                    <Link key={s.id} href={`/nutrient/${s.id}`} className="block bg-white p-3 rounded-xl border border-slate-200 hover:border-red-300 hover:shadow-md transition-all flex justify-between items-center group">
-                                        <span className="font-medium text-slate-700 group-hover:text-red-700">{s.name}</span>
-                                        <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{s.category}</span>
-                                    </Link>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="text-sm text-slate-400">특별한 주의 조합이 없습니다.</p>
-                        )}
-                    </div>
-                </div>
-
                 {/* 구매 섹션 */}
                 <section className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
                     <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2">
@@ -253,6 +207,47 @@ export default function NutrientDetailClient({ id }: { id: string }) {
                         ⚠️ 이 포스팅은 쿠팡 파트너스 및 아이허브 제휴 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
                     </p>
                 </section>
+
+                {/* Combinations Links */}
+                <div className="grid md:grid-cols-2 gap-6">
+                    {/* Best Combos */}
+                    <div className="space-y-3">
+                        <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                            <ThumbsUp className="w-5 h-5 text-emerald-500" /> 같이 먹으면 좋은 짝꿍
+                        </h3>
+                        {bestCombos.length > 0 ? (
+                            <div className="grid gap-2">
+                                {bestCombos.map(s => (
+                                    <Link key={s.id} href={`/nutrient/${s.id}`} className="block bg-white p-3 rounded-xl border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all flex justify-between items-center group">
+                                        <span className="font-medium text-slate-700 group-hover:text-emerald-700">{s.name}</span>
+                                        <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{s.category}</span>
+                                    </Link>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-slate-400">특별한 추천 조합이 없습니다.</p>
+                        )}
+                    </div>
+
+                    {/* Worst Combos */}
+                    <div className="space-y-3">
+                        <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                            <ThumbsDown className="w-5 h-5 text-red-500" /> 같이 먹으면 안 좋은 조합
+                        </h3>
+                        {worstCombos.length > 0 ? (
+                            <div className="grid gap-2">
+                                {worstCombos.map(s => (
+                                    <Link key={s.id} href={`/nutrient/${s.id}`} className="block bg-white p-3 rounded-xl border border-slate-200 hover:border-red-300 hover:shadow-md transition-all flex justify-between items-center group">
+                                        <span className="font-medium text-slate-700 group-hover:text-red-700">{s.name}</span>
+                                        <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{s.category}</span>
+                                    </Link>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-slate-400">특별한 주의 조합이 없습니다.</p>
+                        )}
+                    </div>
+                </div>
 
                 {/* 궁합 분석기로 이동 */}
                 <div className="text-center">
