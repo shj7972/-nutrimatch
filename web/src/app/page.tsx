@@ -15,6 +15,10 @@ import {
   Timetable,
   AdBanner,
   BannerExchange,
+  OnboardingModal,
+  shouldShowOnboarding,
+  PopularCombos,
+  trackComboUsage,
 } from "@/components";
 import { FAQSection } from "@/components/sections/FAQSection";
 import { 
@@ -51,6 +55,7 @@ function NutriPageContent() {
   const [savedRoutine, setSavedRoutine] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<"select" | "timetable">("select");
   const [showGoalModal, setShowGoalModal] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const timetableRef = useRef<HTMLDivElement>(null);
 
   // URL 파라미터에서 초기 선택값 로드
@@ -62,12 +67,14 @@ function NutriPageContent() {
     }
   }, [searchParams]);
 
-  // 로컬스토리지에서 저장된 루틴 로드
+  // 로컬스토리지에서 저장된 루틴 로드 + 온보딩 표시 여부 확인
   useEffect(() => {
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (saved) setSavedRoutine(JSON.parse(saved));
     } catch { /* ignore */ }
+    // 온보딩: 첫 방문자만 표시
+    setShowOnboarding(shouldShowOnboarding());
   }, []);
 
   const toggleSupplement = (id: string) => {
@@ -83,13 +90,15 @@ function NutriPageContent() {
   };
 
   const shareResults = async () => {
-    const params = selectedIds.length > 0 ? `?s=${selectedIds.join(",")}` : "";
-    const shareUrl = `https://nutrimatch.kr/${params}`;
+    const sParam = selectedIds.length > 0 ? selectedIds.join(",") : "";
+    const shareUrl = sParam
+      ? `https://nutrimatch.kr/?s=${sParam}`
+      : "https://nutrimatch.kr/";
     try {
       if (navigator.share) {
         await navigator.share({
-          title: "Nutri-Match 영양제 궁합 분석 결과",
-          text: `내가 선택한 영양제 ${selectedIds.length}개의 궁합을 확인해보세요!`,
+          title: `Nutri-Match — 내 영양제 ${selectedIds.length}개 조합 분석 완료!`,
+          text: `오메가3+비타민D 조합이 맞는지 확인해봤어요. 내 영양제도 궁합 체크해보세요 💊`,
           url: shareUrl,
         });
       } else {
@@ -108,6 +117,8 @@ function NutriPageContent() {
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(selectedIds));
       setSavedRoutine([...selectedIds]);
+      // 인기 조합 집계에 기록
+      if (selectedIds.length >= 2) trackComboUsage(selectedIds);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch { /* ignore */ }
@@ -297,6 +308,11 @@ function NutriPageContent() {
           onClose={() => setShowGoalModal(false)}
           onApply={applyGoal}
         />
+
+        <OnboardingModal
+          isOpen={showOnboarding}
+          onClose={() => setShowOnboarding(false)}
+        />
       </div>
     </>
   );
@@ -387,6 +403,9 @@ function SEOSections() {
         </div>
       </section>
 
+      {/* 인기 조합 섹션 */}
+      <PopularCombos />
+
       {/* 가이드 프리뷰 */}
       <section id="guide" className="py-16 bg-white border-t border-slate-100">
         <div className="max-w-4xl mx-auto px-6">
@@ -428,6 +447,70 @@ function SEOSections() {
 
       {/* FAQ 섹션 */}
       <FAQSection questions={faqQuestions} categories={faqCategories} />
+
+      {/* 증상별 · 연령별 추천 진입점 */}
+      <section id="recommendations" className="py-16 bg-slate-50 border-t border-slate-100">
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-2 text-slate-800">
+            🎯 나에게 맞는 영양제 찾기
+          </h2>
+          <p className="text-center text-slate-500 mb-10 text-sm">
+            증상 또는 나이에 맞게 최적화된 영양제 루틴을 확인하세요
+          </p>
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* 증상별 */}
+            <Link
+              href="/symptom"
+              className="group bg-white rounded-2xl border border-rose-100 p-6 hover:shadow-lg hover:-translate-y-1 transition-all"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-3xl">🩺</span>
+                <div>
+                  <h3 className="font-bold text-lg text-slate-800 group-hover:text-rose-600 transition-colors">
+                    증상별 영양제 추천
+                  </h3>
+                  <p className="text-xs text-slate-500">피로 · 관절 · 피부 · 면역 · 탈모 등</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-1.5 mb-4">
+                {["😴 만성 피로", "🦵 관절 통증", "✨ 피부 고민", "🛡️ 면역력"].map((s) => (
+                  <span key={s} className="text-xs bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full border border-rose-100">
+                    {s}
+                  </span>
+                ))}
+              </div>
+              <div className="flex items-center text-rose-500 font-semibold text-sm gap-1 group-hover:gap-2 transition-all">
+                증상별 추천 보기 →
+              </div>
+            </Link>
+            {/* 연령별 */}
+            <Link
+              href="/routine"
+              className="group bg-white rounded-2xl border border-indigo-100 p-6 hover:shadow-lg hover:-translate-y-1 transition-all"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-3xl">🎂</span>
+                <div>
+                  <h3 className="font-bold text-lg text-slate-800 group-hover:text-indigo-600 transition-colors">
+                    연령별 영양제 추천 루틴
+                  </h3>
+                  <p className="text-xs text-slate-500">20대 · 30대 · 40대 · 50대 · 60대</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-1.5 mb-4">
+                {["🌱 20대", "⚡ 30대", "🔋 40대", "🌿 50대"].map((a) => (
+                  <span key={a} className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full border border-indigo-100">
+                    {a}
+                  </span>
+                ))}
+              </div>
+              <div className="flex items-center text-indigo-500 font-semibold text-sm gap-1 group-hover:gap-2 transition-all">
+                연령별 루틴 보기 →
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
 
       <BannerExchange />
     </>

@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next';
 import { siteConfig } from '@/config/site';
 import supplementsData from '@/data/supplements.json';
 import guidePosts from '@/data/guide_posts.json';
+import { SYMPTOM_KEYS, AGE_KEYS } from '@/constants/recommendations';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = siteConfig.url;
@@ -17,6 +18,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { 
       url: `${baseUrl}/guide`, 
       priority: 0.9, 
+      changeFrequency: 'weekly',
+      lastModified: new Date(),
+    },
+    { 
+      url: `${baseUrl}/faq`, 
+      priority: 0.8, 
+      changeFrequency: 'monthly',
+      lastModified: new Date(),
+    },
+    { 
+      url: `${baseUrl}/symptom`, 
+      priority: 0.85, 
+      changeFrequency: 'weekly',
+      lastModified: new Date(),
+    },
+    { 
+      url: `${baseUrl}/routine`, 
+      priority: 0.85, 
       changeFrequency: 'weekly',
       lastModified: new Date(),
     },
@@ -44,13 +63,28 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  // Image sitemap reference (optional, for SEO)
-  const imageSitemap = {
-    url: `${baseUrl}/image-sitemap.xml`,
+  // 증상별 추천 페이지
+  const symptomRoutes: MetadataRoute.Sitemap = SYMPTOM_KEYS.map((name) => ({
+    url: `${baseUrl}/symptom/${name}`,
     lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.5,
-  };
+    changeFrequency: 'monthly',
+    priority: 0.8,
+  }));
 
-  return [...routes, ...supplementRoutes, ...guideRoutes, imageSitemap];
+  // 연령별 추천 페이지
+  const routineRoutes: MetadataRoute.Sitemap = AGE_KEYS.map((age) => ({
+    url: `${baseUrl}/routine/${age}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly',
+    priority: 0.8,
+  }));
+
+  return [
+    ...routes,
+    ...supplementRoutes,
+    ...guideRoutes,
+    ...symptomRoutes,
+    ...routineRoutes,
+  ];
 }
+
