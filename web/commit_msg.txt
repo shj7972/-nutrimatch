@@ -1,9 +1,14 @@
-fix: unify Coupang Partners links and fix affiliate tracking
+fix: add dedicated Coupang Partners links for 9 supplements
 
-- Remove duplicate COUPANG_LINKS in NutrientDetailClient, import from healthGoals.ts
-- Add missing supplements to COUPANG_LINKS (albumin, chondroitin, vit_e)
-- Export COUPANG_FALLBACK_URL constant for safe fallback
-- Fix NutrientDetailClient: fallback was non-affiliate search URL, now uses COUPANG_FALLBACK_URL
-- Fix AnalysisResult: random link selection replaced with first matched affiliate link
-- Fix AnalysisResult: iHerb search limited to first 2 supplement names for better accuracy
-- Add noopener,noreferrer to all window.open calls
+Replace shared/fallback affiliate URLs with dedicated partner links:
+- selenium: eAOPAt
+- vit_e: eAORGF
+- nac: eAOTLV
+- alpha_lipoic: eAOU4p
+- spirulina: eAOW0P
+- tmg: eAOZfZ
+- chondroitin: eAO0Bu
+- albumin: eAO2sS
+- ergothioneine: eAO3Pt
+
+All 37 supplements now have unique Coupang Partners tracking links.

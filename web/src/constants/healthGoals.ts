@@ -114,16 +114,16 @@ export const COUPANG_LINKS: Record<string, string> = {
   "pqq":           "https://link.coupang.com/a/dyZDWJ",
   "astragalus":    "https://link.coupang.com/a/dyZE0i",
   "urolithin_a":   "https://link.coupang.com/a/dy0bbp",
-  // ↓ 이전에 누락되어 있던 항목들 (fallback URL 공유 → 전용 링크로 대체 필요)
-  "ergothioneine": "https://link.coupang.com/a/dy0bbp",
-  "selenium":      "https://link.coupang.com/a/dyZj5b",
-  "tmg":           "https://link.coupang.com/a/dyZA3w",
-  "nac":           "https://link.coupang.com/a/dyZAaZ",
-  "spirulina":     "https://link.coupang.com/a/dyZmmG",
-  "alpha_lipoic":  "https://link.coupang.com/a/dyZqw5",
-  "albumin":       "https://link.coupang.com/a/dyY0NM",
-  "chondroitin":   "https://link.coupang.com/a/dyZrAy",
-  "vit_e":         "https://link.coupang.com/a/dyZeNr",
+  // ↓ 전용 파트너스 링크 발급 완료 (2026-05-02)
+  "ergothioneine": "https://link.coupang.com/a/eAO3Pt",
+  "selenium":      "https://link.coupang.com/a/eAOPAt",
+  "tmg":           "https://link.coupang.com/a/eAOZfZ",
+  "nac":           "https://link.coupang.com/a/eAOTLV",
+  "spirulina":     "https://link.coupang.com/a/eAOW0P",
+  "alpha_lipoic":  "https://link.coupang.com/a/eAOU4p",
+  "albumin":       "https://link.coupang.com/a/eAO2sS",
+  "chondroitin":   "https://link.coupang.com/a/eAO0Bu",
+  "vit_e":         "https://link.coupang.com/a/eAORGF",
 };
 
 // 쿠팡 파트너스 fallback URL (링크 없는 영양제 대비)
