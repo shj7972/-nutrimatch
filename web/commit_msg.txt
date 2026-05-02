@@ -1,14 +1,7 @@
-fix: add dedicated Coupang Partners links for 9 supplements
+fix: simplify NutrientDetailClient purchase section layout
 
-Replace shared/fallback affiliate URLs with dedicated partner links:
-- selenium: eAOPAt
-- vit_e: eAORGF
-- nac: eAOTLV
-- alpha_lipoic: eAOU4p
-- spirulina: eAOW0P
-- tmg: eAOZfZ
-- chondroitin: eAO0Bu
-- albumin: eAO2sS
-- ergothioneine: eAO3Pt
-
-All 37 supplements now have unique Coupang Partners tracking links.
+Replace conditional coupang/fallback split with single unified anchor tag.
+- Always render coupang button (left) using: coupangLink ?? COUPANG_FALLBACK_URL
+- Always render iherb button (right) with rcode=CYX2175
+- Removes layout bug where buttons could swap order when coupangLink was absent
+- Cleaner markup, always 2-column grid guaranteed
