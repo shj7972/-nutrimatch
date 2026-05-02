@@ -1,17 +1,9 @@
-feat: supplement filter, onboarding modal, OG image, popular combos, symptom/routine pages
+fix: unify Coupang Partners links and fix affiliate tracking
 
-[Short-term]
-- SupplementGrid: category tab filter (8 groups) + real-time search + selection progress bar
-- OnboardingModal: first-visit 3-step guide (localStorage, shown once)
-
-[Medium-term]
-- api/og: dynamic supplement combo card via ?s= param
-- PopularCombos: localStorage-tracked Top 5 + default 3 recommended combos
-- page.tsx: trackComboUsage on save + improved share message
-
-[Long-term]
-- constants/recommendations: 8 symptoms + 5 age-group recommendation data
-- app/symptom/[name]: 8 SSG pages (fatigue, joint-pain, skin, immunity, etc.)
-- app/routine/[age]: 5 SSG pages (20s, 30s, 40s, 50s, 60s-plus)
-- sitemap: updated with all new pages (75 -> 90 static pages)
-- Main page: added symptom/routine entry section
+- Remove duplicate COUPANG_LINKS in NutrientDetailClient, import from healthGoals.ts
+- Add missing supplements to COUPANG_LINKS (albumin, chondroitin, vit_e)
+- Export COUPANG_FALLBACK_URL constant for safe fallback
+- Fix NutrientDetailClient: fallback was non-affiliate search URL, now uses COUPANG_FALLBACK_URL
+- Fix AnalysisResult: random link selection replaced with first matched affiliate link
+- Fix AnalysisResult: iHerb search limited to first 2 supplement names for better accuracy
+- Add noopener,noreferrer to all window.open calls

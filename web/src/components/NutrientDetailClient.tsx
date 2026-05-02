@@ -5,6 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import supplementsData from "@/data/supplements.json";
 import { Supplement } from "@/types";
+import { COUPANG_LINKS, COUPANG_FALLBACK_URL } from "@/constants/healthGoals";
 import {
     Clock,
     AlertTriangle,
@@ -16,37 +17,7 @@ import {
     Pill,
     ShoppingBag,
 } from "lucide-react";
-// 쿠팡 파트너스 링크 맵 (메인 page.tsx와 동일)
-const COUPANG_LINKS: Record<string, string> = {
-    "omega3": "https://link.coupang.com/a/dyYztG",
-    "multivitamin": "https://link.coupang.com/a/dyY0NM",
-    "probiotics": "https://link.coupang.com/a/dyY4DH",
-    "magnesium": "https://link.coupang.com/a/dyY5ZR",
-    "calcium": "https://link.coupang.com/a/dyZdtI",
-    "vit_c": "https://link.coupang.com/a/dyZeNr",
-    "vit_d": "https://link.coupang.com/a/dyZfQg",
-    "vit_b_complex": "https://link.coupang.com/a/dyZgQH",
-    "iron": "https://link.coupang.com/a/dyZi33",
-    "zinc": "https://link.coupang.com/a/dyZj5b",
-    "lutein": "https://link.coupang.com/a/dyZloa",
-    "milk_thistle": "https://link.coupang.com/a/dyZmmG",
-    "propolis": "https://link.coupang.com/a/dyZnwh",
-    "ginseng": "https://link.coupang.com/a/dyZoy2",
-    "collagen": "https://link.coupang.com/a/dyZpw5",
-    "coq10": "https://link.coupang.com/a/dyZqw5",
-    "msm": "https://link.coupang.com/a/dyZrAy",
-    "theanine": "https://link.coupang.com/a/dyZtUm",
-    "arginine": "https://link.coupang.com/a/dyZu1E",
-    "biotin": "https://link.coupang.com/a/dyZxos",
-    "quercetin": "https://link.coupang.com/a/dyZygG",
-    "bromelain": "https://link.coupang.com/a/dyZy3m",
-    "glutathione": "https://link.coupang.com/a/dyZAaZ",
-    "nmn": "https://link.coupang.com/a/dyZA3w",
-    "resveratrol": "https://link.coupang.com/a/dyZCtB",
-    "pqq": "https://link.coupang.com/a/dyZDWJ",
-    "astragalus": "https://link.coupang.com/a/dyZE0i",
-    "urolithin_a": "https://link.coupang.com/a/dy0bbp",
-};
+
 
 export default function NutrientDetailClient({ id }: { id: string }) {
     const supplement = useMemo(() => {
@@ -191,15 +162,21 @@ export default function NutrientDetailClient({ id }: { id: string }) {
                             </div>
                             <span className="text-[10px] opacity-80">글로벌 최저가 🌿</span>
                         </a>
-                        {/* 쿠팡 링크가 없으면 2열 전체 */}
+                        {/* 쿠팡 링크가 없으면 파트너스 fallback */}
                         {!coupangLink && (
                             <a
-                                href={`https://www.coupang.com/np/search?q=${iherbQuery}&channel=user`}
+                                href={COUPANG_FALLBACK_URL}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all hover:shadow-lg active:scale-95 flex flex-col items-center justify-center gap-0.5"
                             >
-                                <span className="text-sm">쿠팡에서 검색</span>
+                                <div className="flex items-center gap-1.5">
+                                    <div className="bg-red-500 p-0.5 rounded-sm">
+                                        <span className="text-[10px] font-black tracking-tighter text-white">R</span>
+                                    </div>
+                                    <span className="text-sm font-bold">쿠팡 로켓배송</span>
+                                </div>
+                                <span className="text-[10px] opacity-80">최저가 확인 🚀</span>
                             </a>
                         )}
                     </div>

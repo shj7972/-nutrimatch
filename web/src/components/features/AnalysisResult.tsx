@@ -3,6 +3,7 @@
 import { AlertTriangle, ThumbsUp, Share2, Star, ShoppingBag } from "lucide-react";
 import { Supplement } from "@/types";
 import { SpecialMessages } from "./SpecialMessages";
+import { COUPANG_FALLBACK_URL } from "@/constants/healthGoals";
 
 interface Analysis {
   good: { s1: Supplement; s2: Supplement }[];
@@ -35,19 +36,22 @@ export function AnalysisResult({
   coupangLinks,
 }: AnalysisResultProps) {
   const handleCoupangClick = () => {
-    if (selectedIds.length > 0) {
-      const randomId = selectedIds[Math.floor(Math.random() * selectedIds.length)];
-      const targetLink = coupangLinks[randomId];
-      window.open(targetLink || "https://link.coupang.com/a/dy0bbp", '_blank');
-    } else {
-      window.open("https://link.coupang.com/a/dy0bbp", '_blank');
-    }
+    // 선택된 영양제 중 파트너스 링크가 있는 첫 번째 항목 우선 사용
+    const matchedId = selectedIds.find((id) => coupangLinks[id]);
+    const targetLink = matchedId ? coupangLinks[matchedId] : COUPANG_FALLBACK_URL;
+    window.open(targetLink, "_blank", "noopener,noreferrer");
   };
 
   const handleIherbClick = () => {
-    const query = selectedSupplements.map(s => s.name).join(" ");
-    window.open(`https://kr.iherb.com/search?kw=${encodeURIComponent(query)}&rcode=CYX2175`, '_blank');
+    // 선택된 영양제명 중 첫 2개만 검색어로 사용 (검색 정확도 향상)
+    const query = selectedSupplements.slice(0, 2).map((s) => s.name).join(" ");
+    window.open(
+      `https://kr.iherb.com/search?kw=${encodeURIComponent(query)}&rcode=CYX2175`,
+      "_blank",
+      "noopener,noreferrer"
+    );
   };
+
 
   if (selectedIds.length === 0) {
     return (
