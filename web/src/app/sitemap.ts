@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next';
 import { siteConfig } from '@/config/site';
 import supplementsData from '@/data/supplements.json';
 import guidePosts from '@/data/guide_posts.json';
+import pairContent from '@/data/pair_content.json';
 import { SYMPTOM_KEYS, AGE_KEYS } from '@/constants/recommendations';
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -79,12 +80,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
+  // 궁합 조합 페이지
+  const pairRoutes: MetadataRoute.Sitemap = [{
+    url: `${baseUrl}/pair`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.85,
+  }, ...(pairContent as { slug: string }[]).map((pair) => ({
+    url: `${baseUrl}/pair/${pair.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  }))];
+
   return [
     ...routes,
     ...supplementRoutes,
     ...guideRoutes,
     ...symptomRoutes,
     ...routineRoutes,
+    ...pairRoutes,
   ];
 }
 

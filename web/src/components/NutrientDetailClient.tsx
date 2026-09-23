@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import supplementsData from "@/data/supplements.json";
 import { Supplement } from "@/types";
 import { COUPANG_LINKS, COUPANG_FALLBACK_URL } from "@/constants/healthGoals";
+import detailExpansion from "@/data/detail_expansion.json";
 import {
     Clock,
     AlertTriangle,
@@ -16,13 +17,27 @@ import {
     ShieldAlert,
     Pill,
     ShoppingBag,
+    HelpCircle,
+    BookOpen,
+    CalendarClock,
+    Users,
+    Lightbulb,
 } from "lucide-react";
+
+interface DetailExpansion {
+    intro: string;
+    sections: { heading: string; body: string }[];
+    faqs: { q: string; a: string }[];
+    dosage_table: string;
+}
 
 
 export default function NutrientDetailClient({ id }: { id: string }) {
     const supplement = useMemo(() => {
         return (supplementsData as unknown as Supplement[]).find((s) => s.id === id);
     }, [id]);
+
+    const expansion = (detailExpansion as Record<string, DetailExpansion | undefined>)[id];
 
     if (!supplement) {
         return notFound();
@@ -63,6 +78,35 @@ export default function NutrientDetailClient({ id }: { id: string }) {
                         {supplement.description}
                     </p>
                 </section>
+
+                {/* 상세 확장: 인트로 */}
+                {expansion?.intro && (
+                    <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100">
+                        <div className="space-y-4">
+                            {expansion.intro.split(/\n\n+/).filter(Boolean).map((p, i) => (
+                                <p key={i} className="text-slate-700 leading-relaxed">{p}</p>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {/* 상세 확장: 섹션 본문 */}
+                {expansion?.sections?.map((sec, i) => (
+                    <section key={i} className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100">
+                        <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-start gap-2 leading-snug">
+                            {i === 0 && <CalendarClock className="w-6 h-6 text-blue-500 shrink-0 mt-0.5" />}
+                            {i === 1 && <Users className="w-6 h-6 text-indigo-500 shrink-0 mt-0.5" />}
+                            {i === 2 && <Pill className="w-6 h-6 text-emerald-500 shrink-0 mt-0.5" />}
+                            {i === 3 && <Lightbulb className="w-6 h-6 text-amber-500 shrink-0 mt-0.5" />}
+                            <span>{sec.heading}</span>
+                        </h2>
+                        <div className="space-y-4">
+                            {sec.body.split(/\n\n+/).filter(Boolean).map((p, j) => (
+                                <p key={j} className="text-slate-700 leading-relaxed">{p}</p>
+                            ))}
+                        </div>
+                    </section>
+                ))}
 
                 {/* Grid: Efficacy & Timing */}
                 <div className="grid md:grid-cols-2 gap-6">
@@ -207,7 +251,38 @@ export default function NutrientDetailClient({ id }: { id: string }) {
                     </div>
                 </div>
 
-                {/* 궁합 분석기로 이동 */}
+                {/* FAQ */}
+                {expansion?.faqs && expansion.faqs.length > 0 && (
+                    <section className="space-y-3">
+                        <h2 className="text-lg font-bold flex items-center gap-2 text-slate-800">
+                            <HelpCircle className="w-5 h-5 text-slate-500" /> 자주 묻는 질문
+                        </h2>
+                        {expansion.faqs.map((f, i) => (
+                            <details key={i} className="bg-white rounded-xl border border-slate-200 overflow-hidden group">
+                                <summary className="cursor-pointer px-5 py-4 font-medium text-slate-800 flex items-center justify-between gap-3">
+                                    <span>Q. {f.q}</span>
+                                    <span className="text-slate-400 group-open:rotate-180 transition-transform shrink-0">▾</span>
+                                </summary>
+                                <div className="px-5 pb-4 pt-1 text-slate-600 text-sm leading-relaxed border-t border-slate-100">
+                                    {f.a}
+                                </div>
+                            </details>
+                        ))}
+                    </section>
+                )}
+
+                {/* 저자/업데이트 + 출처 (YMYL 신뢰 장치) */}
+                <section className="bg-slate-100 rounded-2xl p-5 text-xs text-slate-500 leading-relaxed">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-2">
+                        <span className="flex items-center gap-1"><BookOpen className="w-3.5 h-3.5" /> 작성: Nutri-Match 에디터팀</span>
+                        <span className="flex items-center gap-1"><CalendarClock className="w-3.5 h-3.5" /> 최종 업데이트: 2026년 9월 23일</span>
+                    </div>
+                    <p>
+                        참고 자료: 식품의약품안전처 건강기능식품 기능성 정보, 미국 국립보건원(NIH) 보충제 지침, 통합의학 정보. 본 내용은 2026년 9월 기준 최신 정보를 반영했으며, 새로운 연구 결과에 따라 정기적으로 업데이트됩니다.
+                    </p>
+                </section>
+
+                {/* 궁합 분석기 CTA */}
                 <div className="text-center">
                     <Link
                         href={`/?s=${id}`}
@@ -217,6 +292,12 @@ export default function NutrientDetailClient({ id }: { id: string }) {
                         {supplement.name}를 포함해서 궁합 분석하기
                     </Link>
                 </div>
+
+                {/* 면책 조항 (YMYL) */}
+                <p className="text-[11px] text-slate-400 leading-relaxed text-center px-4">
+                    본 콘텐츠는 일반적인 건강 정보를 제공하며, 의학적 조언을 대체하지 않습니다.
+                    개인의 건강 상태에 따라 다를 수 있으므로 복용 전 약사 또는 의사와 상담하시기 바랍니다.
+                </p>
 
             </main>
         </div>
