@@ -1,6 +1,6 @@
 "use client";
 
-import { Pill, RotateCcw, BookmarkCheck, BookOpen } from "lucide-react";
+import { Pill, RotateCcw, BookmarkCheck, BookOpen, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 interface HeaderProps {
@@ -37,6 +37,14 @@ export function Header({ savedRoutineCount, onReset, onLoadSaved }: HeaderProps)
           >
             <BookOpen className="w-4 h-4" />
             <span className="hidden sm:inline">가이드</span>
+          </Link>
+          <Link
+            href="/privacy"
+            className="text-sm bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors font-medium"
+            title="개인정보 처리방침"
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span className="hidden md:inline">보호정책</span>
           </Link>
           <button
             onClick={onReset}

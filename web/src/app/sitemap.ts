@@ -46,6 +46,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'daily',
       lastModified: new Date(),
     },
+    { 
+      url: `${baseUrl}/privacy`, 
+      priority: 0.3, 
+      changeFrequency: 'yearly',
+      lastModified: new Date(),
+    },
   ];
 
   // Dynamic routes (supplements) - 영양제 상세 페이지
