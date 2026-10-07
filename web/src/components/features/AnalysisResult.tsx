@@ -3,7 +3,6 @@
 import { AlertTriangle, ThumbsUp, Share2, Star, ShoppingBag } from "lucide-react";
 import { Supplement } from "@/types";
 import { SpecialMessages } from "./SpecialMessages";
-import { COUPANG_FALLBACK_URL } from "@/constants/healthGoals";
 
 interface Analysis {
   good: { s1: Supplement; s2: Supplement }[];
@@ -20,7 +19,6 @@ interface AnalysisResultProps {
   copied: boolean;
   onShare: () => void;
   onSave: () => void;
-  coupangLinks: Record<string, string>;
 }
 
 export function AnalysisResult({
@@ -33,15 +31,7 @@ export function AnalysisResult({
   copied,
   onShare,
   onSave,
-  coupangLinks,
 }: AnalysisResultProps) {
-  const handleCoupangClick = () => {
-    // 선택된 영양제 중 파트너스 링크가 있는 첫 번째 항목 우선 사용
-    const matchedId = selectedIds.find((id) => coupangLinks[id]);
-    const targetLink = matchedId ? coupangLinks[matchedId] : COUPANG_FALLBACK_URL;
-    window.open(targetLink, "_blank", "noopener,noreferrer");
-  };
-
   const handleIherbClick = () => {
     // 선택된 영양제명 중 첫 2개만 검색어로 사용 (검색 정확도 향상)
     const query = selectedSupplements.slice(0, 2).map((s) => s.name).join(" ");
@@ -135,20 +125,7 @@ export function AnalysisResult({
       {/* Action Buttons */}
       <div className="mt-8 pt-6 border-t border-slate-100 space-y-3">
         <h4 className="text-center text-sm font-bold text-slate-500 mb-3">선택한 영양제 최저가 확인하기</h4>
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={handleCoupangClick}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-md transition-all hover:shadow-lg active:scale-95 flex flex-col items-center justify-center gap-1 group relative overflow-hidden"
-          >
-            <div className="flex items-center gap-1.5 z-10">
-              <div className="bg-red-500 p-0.5 rounded-sm">
-                <span className="text-[10px] font-black tracking-tighter text-white">R</span>
-              </div>
-              <span className="text-base">쿠팡 로켓배송</span>
-            </div>
-            <span className="text-[10px] font-normal opacity-80 z-10">내일 새벽 도착 보장! 🚀</span>
-          </button>
-
+        <div className="grid grid-cols-1 gap-3">
           <button
             onClick={handleIherbClick}
             className="bg-[#458500] hover:bg-[#3d7400] text-white font-bold py-3 rounded-xl shadow-md transition-all hover:shadow-lg active:scale-95 flex flex-col items-center justify-center gap-1"
@@ -181,7 +158,7 @@ export function AnalysisResult({
 
         <p className="text-[11px] text-center text-slate-500 mt-3 leading-relaxed bg-slate-100 p-2 rounded-lg">
           ⚠️ <strong>공정위 문구 알림</strong><br />
-          &quot;이 포스팅은 쿠팡 파트너스 활동의 일환으로,<br />
+          &quot;이 포스팅은 아이허브 제휴 활동의 일환으로,<br />
           이에 따른 일정액의 수수료를 제공받습니다.&quot;
         </p>
       </div>

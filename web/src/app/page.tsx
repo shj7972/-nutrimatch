@@ -25,8 +25,7 @@ import {
   HEALTH_GOALS, 
   ANTI_AGING_COMBO, 
   TIMING_ORDER, 
-  LOCAL_STORAGE_KEY, 
-  COUPANG_LINKS 
+  LOCAL_STORAGE_KEY
 } from "@/constants/healthGoals";
 import { generateFAQJsonLd } from "@/config/site";
 import { BookOpen, ArrowRight } from "lucide-react";
@@ -276,7 +275,6 @@ function NutriPageContent() {
                     copied={copied}
                     onShare={shareResults}
                     onSave={saveRoutine}
-                    coupangLinks={COUPANG_LINKS}
                   />
                 ) : (
                   <div ref={timetableRef}>

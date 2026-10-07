@@ -5,7 +5,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import supplementsData from "@/data/supplements.json";
 import { Supplement } from "@/types";
-import { COUPANG_LINKS, COUPANG_FALLBACK_URL } from "@/constants/healthGoals";
 import detailExpansion from "@/data/detail_expansion.json";
 import {
     Clock,
@@ -47,7 +46,6 @@ export default function NutrientDetailClient({ id }: { id: string }) {
     const bestCombos = (supplementsData as unknown as Supplement[]).filter(s => supplement.best_with.includes(s.id));
     const worstCombos = (supplementsData as unknown as Supplement[]).filter(s => supplement.worst_with.includes(s.id));
 
-    const coupangLink = COUPANG_LINKS[id];
     const iherbQuery = encodeURIComponent(supplement.name);
 
     return (
@@ -175,22 +173,7 @@ export default function NutrientDetailClient({ id }: { id: string }) {
                         {supplement.name} 최저가로 구매하기
                     </h2>
                     <p className="text-sm text-slate-500 mb-4">신뢰할 수 있는 공식 채널에서 안전하게 구매하세요.</p>
-                    <div className="grid grid-cols-2 gap-3">
-                        {/* 쿠팡 파트너스 — 전용 링크 우선, 없으면 fallback (항상 파트너스 집계) */}
-                        <a
-                            href={coupangLink ?? COUPANG_FALLBACK_URL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all hover:shadow-lg active:scale-95 flex flex-col items-center justify-center gap-0.5"
-                        >
-                            <div className="flex items-center gap-1.5">
-                                <div className="bg-red-500 p-0.5 rounded-sm">
-                                    <span className="text-[10px] font-black tracking-tighter text-white">R</span>
-                                </div>
-                                <span className="text-sm font-bold">쿠팡 로켓배송</span>
-                            </div>
-                            <span className="text-[10px] opacity-80">내일 새벽 도착 🚀</span>
-                        </a>
+                    <div className="grid grid-cols-1 gap-3">
                         {/* 아이허브 — rcode=CYX2175 리워드 집계 */}
                         <a
                             href={`https://kr.iherb.com/search?kw=${iherbQuery}&rcode=CYX2175`}
@@ -206,7 +189,7 @@ export default function NutrientDetailClient({ id }: { id: string }) {
                         </a>
                     </div>
                     <p className="text-[11px] text-center text-slate-400 mt-3 leading-relaxed">
-                        ⚠️ 이 포스팅은 쿠팡 파트너스 및 아이허브 제휴 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
+                        ⚠️ 이 포스팅은 아이허브 제휴 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
                     </p>
                 </section>
 
